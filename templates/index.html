@@ -17,9 +17,15 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <div class="container">
-            <form method="post" action="/run" autocomplete="on">
+            <form method="post" action="/upload" autocomplete="on">
                 <input name="name" id="name"/>
-                <input type="submit" value="run"/>
+                <input type="submit" value="upload"/>
+            </form>
+            <form method="post" action="/download" autocomplete="on">
+                <input type="submit" value="download"/>
+            </form>
+            <form method="post" action="/files" autocomplete="on">
+                <input type="submit" value="get_files"/>
             </form>
             <br>
             <div id="result">{{property_info}}</div>

@@ -1,3 +1,4 @@
+import gdown
 from flask import Flask, redirect, render_template, request, url_for
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -13,10 +14,22 @@ def index():
     return render_template("index.html", property_info="scraping_data")
 
 
-@app.route("/run", methods=["POST"])
-def scrap():
+@app.route("/upload", methods=["POST"])
+def upload():
     upload_drive()
-    return render_template("index.html", property_info="scraping_data")
+    return redirect("/")
+
+
+@app.route("/download", methods=["POST"])
+def download():
+    download_drive()
+    return redirect("/")
+
+
+@app.route("/files", methods=["POST"])
+def get_files():
+    get_file_list()
+    return redirect("/")
 
 
 @app.errorhandler(404)
@@ -31,7 +44,15 @@ def upload_drive():
 
 
 def download_drive():
-    pass
+    upload_drive()
+    url = "https://drive.google.com/drive/folders/1-kIcHR45LPBAxVSpXvg6rJQv4pNEghMq?usp=share_link"
+    gdown.download_folder(url)
+
+
+def get_file_list():
+    file_list = drive.ListFile({"q": "'root' in parents and trashed=false"}).GetList()
+    print(file_list)
+    return file_list
 
 
 app.run(host="0.0.0.0", debug=True, port="8080")

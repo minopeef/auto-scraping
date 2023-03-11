@@ -15,7 +15,7 @@ class Base:
     def download_img(self, path: str, link: str):
         r = requests.get(link, stream=True)
         r.raw.decode_content = True
-        with open("img.png", "wb") as f:
+        with open(f"{path}/img.png", "wb") as f:
             shutil.copyfileobj(r.raw, f)
 
     def download_audio(self, path, text):

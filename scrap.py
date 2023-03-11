@@ -126,7 +126,7 @@ class Whatjpride(Base):
             ]
 
             # download audio and comment
-            for idx, item in comment_head_list:
+            for idx, item in enumerate(comment_head_list):
                 result["comment"].append({"head": item, "body": comment_body_list[idx]})
                 file_name = str(idx) + "_" + " ".join(re.findall(r"\w*", item))
 

@@ -1,5 +1,7 @@
+import json
 import re
 import shutil
+import time
 from pathlib import Path
 
 import requests
@@ -19,7 +21,32 @@ class Base:
             shutil.copyfileobj(r.raw, f)
 
     def download_audio(self, path, text):
-        pass
+        api_url = "https://large-text-to-speech.p.rapidapi.com/tts"
+
+        payload = {"text": text}
+        headers = {
+            "content-type": "application/json",
+            "X-RapidAPI-Key": "9929ce4c9dmsh8310848ee5c940cp1da3f8jsnf3c41c1289ad",
+            "X-RapidAPI-Host": "large-text-to-speech.p.rapidapi.com",
+        }
+
+        response = requests.request("POST", api_url, json=payload, headers=headers)
+        # filename = "test-file.wav"
+        id = json.loads(response.text)["id"]
+        eta = json.loads(response.text)["eta"]
+        print(f"Waiting {eta} seconds for the job to finish...")
+        time.sleep(eta)
+        response = requests.request("GET", api_url, headers=headers, params={"id": id})
+        while "url" not in json.loads(response.text):
+            response = requests.request(
+                "GET", api_url, headers=headers, params={"id": id}
+            )
+            print(f"Waiting some more...")
+            time.sleep(3)
+        api_url = json.loads(response.text)["url"]
+        response = requests.request("GET", api_url)
+        with open(f"{path}/audio.wav", "wb") as f:
+            f.write(response.content)
 
     def save_info_local(self, title, path, comment: str, img_link: str):
         # crete directory
@@ -84,4 +111,5 @@ class Whatjpride(Base):
 
 
 Whatjpride().run()
+# Base().download_audio(1,2)
 # print(os.listdir("自動化/MLB NEWS@まとめ"))

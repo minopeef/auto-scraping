@@ -32,7 +32,8 @@ class Base:
             "kanji": text,
         }
         headers = {
-            "user-agent": "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+            "user-agent": """user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+            (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"""
         }
         resp = requests.get(url=api_url, params=params, headers=headers)
         with open(path, "wb") as f:
@@ -120,6 +121,9 @@ class Whatjpride(Base):
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
             ]
+
+            # create path
+            Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
 
             # download audio and comment
             for idx, item in comment_head_list:

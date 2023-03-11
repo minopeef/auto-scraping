@@ -109,6 +109,9 @@ class Whatjpride(Base):
             img_link = article_body.find_all("img")[0]["src"]
             result["img_link"] = img_link
 
+            # create path
+            Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
+
             # save image
             self.download_img(path, img_link)
 
@@ -121,9 +124,6 @@ class Whatjpride(Base):
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
             ]
-
-            # create path
-            Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
 
             # download audio and comment
             for idx, item in comment_head_list:

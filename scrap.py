@@ -31,28 +31,13 @@ class Base:
             "volume": "100",
             "kanji": text,
         }
-        headers = {
-            "user-agent": """user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
-            (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"""
-        }
-        resp = requests.get(url=api_url, params=params, headers=headers)
+        # headers = {
+        #     "user-agent": """user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+        #     (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"""
+        # }
+        resp = requests.get(url=api_url, params=params)
         with open(path, "wb") as f:
             f.write(resp.content)
-
-    # def save_info_local(self, title, path, comment: str, img_link: str):
-    #     # crete directory
-    #     audio_path = f"{path}/音声ファイル"
-    #     Path(audio_path).mkdir(parents=True, exist_ok=True)
-
-    #     # save comment as txt
-    #     with open(f"{path}/comment.txt", mode="w", encoding="utf-8") as f:
-    #         f.write(comment)
-
-    #     # save img
-    #     self.download_img(path, img_link)
-
-    #     # save comment as audio
-    #     self.download_audio(audio_path, comment)
 
     def save_txt(self, path, txt):
         with open(path, mode="w", encoding="utf-8") as f:
@@ -128,15 +113,17 @@ class Whatjpride(Base):
             # download audio and comment
             for idx, item in enumerate(comment_head_list):
                 result["comment"].append({"head": item, "body": comment_body_list[idx]})
-                file_name = str(idx) + "_" + " ".join(re.findall(r"\w*", item))
+
+                temp_arr = re.findall(r"\w+", item)
+                file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
 
                 self.save_audio(
                     f"{path}/音声ファイル/{file_name}.mp3", comment_body_list[idx]
                 )
 
                 self.save_txt(f"{path}/{file_name}.txt", comment_body_list[idx])
-            with open("all_info.json", mode="w", encoding="utf-8") as f:
-                f.write(json.dumps(result))
+            with open(f"{path}/all_info.json", mode="w", encoding="utf-8") as f:
+                json.dump(result, f, ensure_ascii=False)
 
         return
 

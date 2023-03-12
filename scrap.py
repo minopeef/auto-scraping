@@ -5,6 +5,12 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
+gauth = GoogleAuth()
+gauth.LocalWebserverAuth()
+drive = GoogleDrive(gauth)
 
 
 class Base:
@@ -20,7 +26,7 @@ class Base:
         with open(f"{path}/img.png", "wb") as f:
             shutil.copyfileobj(r.raw, f)
 
-    def save_audio(self, path: str, text: str):
+    def save_upload_audio(self, local_path: str, driver_id: str, text: str):
         api_url = "https://www.yukumo.net/api/v2/aqtk1/koe.mp3"
         if len(text) > 140:
             text = text[:140]
@@ -37,12 +43,35 @@ class Base:
         #     (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"""
         # }
         resp = requests.get(url=api_url, params=params)
-        with open(path, "wb") as f:
+        with open(local_path, "wb") as f:
             f.write(resp.content)
+        self.upload_file(driver_id, local_path)
+        return
 
-    def save_txt(self, path, txt):
-        with open(path, mode="w", encoding="utf-8") as f:
+    def save_upload_txt(self, local_path: str, driver_id: str, txt: str):
+        with open(local_path, mode="w", encoding="utf-8") as f:
             f.write(txt)
+        self.upload_file(driver_id, local_path)
+        return
+
+    def create_driver_directory(self, directory_name: str, parent_id="root"):
+        file_metadata = {
+            "title": directory_name,
+            # "parents": [{"id": parent_id}],
+            "mimeType": "application/vnd.google-apps.folder",
+        }
+        if parent_id != "root":
+            file_metadata["parents"] = [{"id": parent_id}]
+        folder = drive.CreateFile(file_metadata)
+        folder.Upload()
+        return folder["id"]
+
+    def upload_file(self, driver_id: str, local_path: str):
+        file_name = local_path.split("/")[-1]
+        file = drive.CreateFile({"title": file_name, "parents": [{"id": driver_id}]})
+        file.SetContentFile(local_path)
+        file.Upload()
+        return file["id"]
 
     def run():
         pass
@@ -54,7 +83,7 @@ class Whatjpride(Base):
         self.name = "なんJ PRIDE"
         self.path = "自動化/なんJ PRIDE"
         self.url = "http://blog.livedoor.jp/rock1963roll/"
-        self.driver_id = "1uOXxuaaQA4dgX8puRF49-Mbzdb21Eonp"
+        self.driver_id = "1DVSgFkkssr7dBehXeMkE8nwdfi4say8u"
 
     def run(self):
         resp = requests.get(self.url)
@@ -96,8 +125,14 @@ class Whatjpride(Base):
             img_link = article_body.find_all("img")[0]["src"]
             result["img_link"] = img_link
 
-            # create path
+            # create local path
             Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
+
+            # create driver path
+            article_driver_id = self.create_driver_directory(
+                f"{date_time}_{article_head}", self.driver_id
+            )
+            audio_driver_id = self.create_driver_directory("音声ファイル", article_driver_id)
 
             # save image
             self.download_img(path, img_link)
@@ -119,13 +154,18 @@ class Whatjpride(Base):
                 temp_arr = re.findall(r"\w+", item)
                 file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
 
-                self.save_audio(
-                    f"{path}/音声ファイル/{file_name}.mp3", comment_body_list[idx]
+                self.save_upload_audio(
+                    f"{path}/音声ファイル/{file_name}.mp3",
+                    audio_driver_id,
+                    comment_body_list[idx],
                 )
 
-                self.save_txt(f"{path}/{file_name}.txt", comment_body_list[idx])
+                self.save_upload_txt(
+                    f"{path}/{file_name}.txt", article_driver_id, comment_body_list[idx]
+                )
             with open(f"{path}/all_info.json", mode="w", encoding="utf-8") as f:
                 json.dump(result, f, ensure_ascii=False)
+            self.upload_file(article_driver_id, f"{path}/all_info.json")
 
         return
 
@@ -199,19 +239,18 @@ class Yakiusoku(Base):
                 temp_arr = re.findall(r"\w+", item)
                 file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
 
-                self.save_audio(
+                self.save_upload_audio(
                     f"{path}/音声ファイル/{file_name}.mp3", comment_body_list[idx]
                 )
 
-                self.save_txt(f"{path}/{file_name}.txt", comment_body_list[idx])
+                self.save_upload_txt(f"{path}/{file_name}.txt", comment_body_list[idx])
             with open(f"{path}/all_info.json", mode="w", encoding="utf-8") as f:
                 json.dump(result, f, ensure_ascii=False)
 
         return
 
 
-
-# Whatjpride().run()
-Yakiusoku().run()
+Whatjpride().run()
+# Yakiusoku().run()
 # Base().download_audio("static","""abc""")
 # print(os.listdir("自動化/MLB NEWS@まとめ"))

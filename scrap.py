@@ -20,12 +20,12 @@ class Base:
         self.url = None
         self.driver_id = None
 
-    def download_img(self, path: str, driver_id: str, link: str):
+    def download_img(self, path: str, driver_id: str, link: str, name: str):
         r = requests.get(link, stream=True)
         r.raw.decode_content = True
-        with open(f"{path}/img.png", "wb") as f:
+        with open(f"{path}/{name}", "wb") as f:
             shutil.copyfileobj(r.raw, f)
-        self.upload_file(driver_id, f"{path}/img.png")
+        self.upload_file(driver_id, f"{path}/{name}")
 
     def save_upload_audio(self, local_path: str, driver_id: str, text: str):
         api_url = "https://www.yukumo.net/api/v2/aqtk1/koe.mp3"
@@ -94,7 +94,12 @@ class Base:
         )
 
         # save image
-        self.download_img(self.article_path, self.article_driver_id, self.img_link)
+        [
+            self.download_img(
+                self.article_path, self.article_driver_id, x, f"{idx}_img.jpg"
+            )
+            for idx, x in enumerate(self.img_link)
+        ]
 
         # download audio and comment
         for idx, item in enumerate(self.comment_body_list):
@@ -104,6 +109,11 @@ class Base:
                 file_name = item
                 if len(item) > 5:
                     file_name = item[:5]
+
+                if idx < 10:
+                    file_name = f"0{idx}_{file_name}"
+                else:
+                    file_name = f"{idx}_{file_name}"
 
                 self.save_upload_audio(
                     f"{self.article_path}/音声ファイル/{file_name}.mp3",
@@ -163,7 +173,7 @@ class Rock(Base):
             result["title"] = title
 
             # get save path
-            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            self.article_head = " ".join(re.findall(r"\w+", title)).strip()
             self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
             result["path"] = self.article_path
 
@@ -230,7 +240,7 @@ class Yakiusoku(Base):
             result["title"] = title
 
             # get save path
-            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            self.article_head = " ".join(re.findall(r"\w+", title)).strip()
             self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
             result["path"] = self.article_path
 
@@ -300,19 +310,22 @@ class Livejupiter2(Base):
             self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
 
             # get save path
-            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            self.article_head = " ".join(re.findall(r"\w+", title)).strip()
             self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
             result["path"] = self.article_path
 
             # get image link
             self.img_link = [x["src"] for x in article_body.find_all("img")]
             result["img_link"] = self.img_link
-
+            self.comment_body_list = []
             # get comment head and body
-            self.comment_body_list = [
-                " ".join(re.findall(r"\w+", x.find("b").text.strip()))
-                for x in article_body.find_all("dd")
-            ]
+            for item in article_body.find_all("dd"):
+                try:
+                    self.comment_body_list.append(
+                        " ".join(re.findall(r"\w+", item.find("b").text.strip()))
+                    )
+                except:  # noqa
+                    continue
 
             result["comment"] = self.comment_body_list
             self.result.append(result)

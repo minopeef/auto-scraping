@@ -98,21 +98,23 @@ class Base:
 
         # download audio and comment
         for idx, item in enumerate(self.comment_head_list):
+            try:
+                temp_arr = re.findall(r"\w+", item)
+                file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
 
-            temp_arr = re.findall(r"\w+", item)
-            file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
+                self.save_upload_audio(
+                    f"{self.article_path}/音声ファイル/{file_name}.mp3",
+                    self.audio_driver_id,
+                    self.comment_body_list[idx],
+                )
 
-            self.save_upload_audio(
-                f"{self.article_path}/音声ファイル/{file_name}.mp3",
-                self.audio_driver_id,
-                self.comment_body_list[idx],
-            )
-
-            self.save_upload_txt(
-                f"{self.article_path}/記事/{file_name}.txt",
-                self.comment_driver_id,
-                self.comment_body_list[idx],
-            )
+                self.save_upload_txt(
+                    f"{self.article_path}/記事/{file_name}.txt",
+                    self.comment_driver_id,
+                    self.comment_body_list[idx],
+                )
+            except:  # noqa
+                continue
         with open(
             f"{self.article_path}/all_info.json", mode="w", encoding="utf-8"
         ) as f:
@@ -189,6 +191,8 @@ class Yakiusoku(Base):
         self.name = "日刊やきう速報"
         self.path = "自動化/日刊やきう速報"
         self.url = "http://blog.livedoor.jp/yakiusoku/"
+        self.driver_id = "1oFjp2Mg_AlCOLeEpCIFZT3zibdtinlNE"
+        self.result = []
 
     def run(self):
         resp = requests.get(self.url)
@@ -196,7 +200,7 @@ class Yakiusoku(Base):
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
         recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
         for _link in recent_link_list:
-            self.result = {
+            result = {
                 "title": "",
                 "link": _link,
                 "path": "",
@@ -220,62 +224,36 @@ class Yakiusoku(Base):
             title = self.article_head.find(
                 attrs={"class": "article-title"}
             ).text.strip()
-            self.result["title"] = title
+            result["title"] = title
 
             # get save path
             self.article_head = " ".join(re.findall(r"\w*", title)).strip()
-            path = f"{self.path}/{self.date_time}_{self.article_head}"
-            self.result["path"] = path
+            self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
+            result["path"] = self.article_path
 
             # get article body html
             article_body = soup.find("div", attrs={"class": "article-body-inner"})
 
             # get image link
-            img_link = article_body.find_all("img")[0]["src"]
-            self.result["img_link"] = img_link
-
-            # create path
-            Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
-
-            # save image
-            self.download_img(path, img_link)
+            self.img_link = article_body.find_all("img")[0]["src"]
+            result["img_link"] = self.img_link
 
             # get comment head and body
-            comment_head_list = [
+            self.comment_head_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_h"})
             ]
-            comment_body_list = [
+            self.comment_body_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
             ]
-
-            # download audio and comment
-            for idx, item in enumerate(comment_head_list):
-                try:
-                    self.result["comment"].append(
-                        {"head": item, "body": comment_body_list[idx]}
-                    )
-
-                    temp_arr = re.findall(r"\w+", item)
-                    file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
-
-                    self.save_upload_audio(
-                        f"{path}/音声ファイル/{file_name}.mp3", comment_body_list[idx]
-                    )
-
-                    self.save_upload_txt(
-                        f"{path}/{file_name}.txt", comment_body_list[idx]
-                    )
-                except:  # noqa
-                    continue
-            with open(f"{path}/all_info.json", mode="w", encoding="utf-8") as f:
-                json.dump(self.result, f, ensure_ascii=False)
-
+            result["comment"] = self.comment_body_list
+            self.result.append(result)
+            self.save_upload()
         return
 
 
-Rock().run()
-# Yakiusoku().run()
+# Rock().run()
+Yakiusoku().run()
 # Base().download_audio("static","""abc""")
 # print(os.listdir("自動化/MLB NEWS@まとめ"))

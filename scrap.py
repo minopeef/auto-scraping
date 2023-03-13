@@ -155,7 +155,7 @@ class Rock(Base):
                 "link": _link,
                 "path": "",
                 "comment": [],
-                "img_link": "",
+                "img_link": [],
             }
             # get all html
             resp = requests.get(_link)
@@ -181,7 +181,7 @@ class Rock(Base):
             article_body = soup.find("div", attrs={"class": "article-body-inner"})
 
             # get image link
-            self.img_link = article_body.find_all("img")[0]["src"]
+            self.img_link = [x["src"] for x in article_body.find_all("img")]
             result["img_link"] = self.img_link
 
             # get comment head and body
@@ -218,7 +218,7 @@ class Yakiusoku(Base):
                 "link": _link,
                 "path": "",
                 "comment": [],
-                "img_link": "",
+                "img_link": [],
             }
             # get all html
             resp = requests.get(_link)
@@ -248,14 +248,14 @@ class Yakiusoku(Base):
             article_body = soup.find("div", attrs={"class": "article-body-inner"})
 
             # get image link
-            self.img_link = article_body.find_all("img")[0]["src"]
+            self.img_link = [x["src"] for x in article_body.find_all("img")]
             result["img_link"] = self.img_link
 
             # get comment head and body
-            self.comment_head_list = [
-                x.text.strip()
-                for x in article_body.find_all("div", attrs={"class": "t_h"})
-            ]
+            # self.comment_head_list = [
+            #     x.text.strip()
+            #     for x in article_body.find_all("div", attrs={"class": "t_h"})
+            # ]
             self.comment_body_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})

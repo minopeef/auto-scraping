@@ -77,6 +77,51 @@ class Base:
     def run():
         pass
 
+    def save_upload(self):
+        # create local path
+        Path(f"{self.article_path}/音声ファイル").mkdir(parents=True, exist_ok=True)
+        Path(f"{self.article_path}/記事").mkdir(parents=True, exist_ok=True)
+
+        # create driver path
+        self.article_driver_id = self.create_driver_directory(
+            f"{self.date_time}_{self.article_head}", self.driver_id
+        )
+        self.audio_driver_id = self.create_driver_directory(
+            "音声ファイル", self.article_driver_id
+        )
+        self.comment_driver_id = self.create_driver_directory(
+            "記事", self.article_driver_id
+        )
+
+        # save image
+        self.download_img(self.article_path, self.article_driver_id, self.img_link)
+
+        # download audio and comment
+        for idx, item in enumerate(self.comment_head_list):
+            self.result["comment"].append(
+                {"head": item, "body": self.comment_body_list[idx]}
+            )
+
+            temp_arr = re.findall(r"\w+", item)
+            file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
+
+            self.save_upload_audio(
+                f"{self.article_path}/音声ファイル/{file_name}.mp3",
+                self.audio_driver_id,
+                self.comment_body_list[idx],
+            )
+
+            self.save_upload_txt(
+                f"{self.article_path}/記事/{file_name}.txt",
+                self.comment_driver_id,
+                self.comment_body_list[idx],
+            )
+        with open(
+            f"{self.article_path}/all_info.json", mode="w", encoding="utf-8"
+        ) as f:
+            json.dump(self.result, f, ensure_ascii=False)
+        self.upload_file(self.article_driver_id, f"{self.article_path}/all_info.json")
+
 
 # なんJ PRIDE
 class Rock(Base):
@@ -92,7 +137,7 @@ class Rock(Base):
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
         recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
         for _link in recent_link_list:
-            result = {
+            self.result = {
                 "title": "",
                 "link": _link,
                 "path": "",
@@ -104,74 +149,38 @@ class Rock(Base):
             soup = BeautifulSoup(resp.text, features="html.parser")
 
             # get article head html
-            article_head = soup.find("div", attrs={"class": "article-header"})
+            self.article_head = soup.find("div", attrs={"class": "article-header"})
 
             # get deployed time
-            date_time = article_head.find("abbr")["title"]
-            date_time = "".join(re.findall(r"\d+", date_time))[:12]
+            self.date_time = self.article_head.find("abbr")["title"]
+            self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
 
             # get title
-            title = article_head.find("h2").text.strip()
-            result["title"] = title
+            title = self.article_head.find("h2").text.strip()
+            self.result["title"] = title
 
             # get save path
-            article_head = " ".join(re.findall(r"\w*", title)).strip()
-            path = f"{self.path}/{date_time}_{article_head}"
-            result["path"] = path
+            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
+            self.result["path"] = self.article_path
 
             # get article body html
             article_body = soup.find("div", attrs={"class": "article-body-inner"})
 
             # get image link
-            img_link = article_body.find_all("img")[0]["src"]
-            result["img_link"] = img_link
-
-            # create local path
-            Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
-            Path(f"{path}/記事").mkdir(parents=True, exist_ok=True)
-
-            # create driver path
-            article_driver_id = self.create_driver_directory(
-                f"{date_time}_{article_head}", self.driver_id
-            )
-            audio_driver_id = self.create_driver_directory("音声ファイル", article_driver_id)
-            comment_driver_id = self.create_driver_directory("記事", article_driver_id)
-
-            # save image
-            self.download_img(path, article_driver_id, img_link)
+            self.img_link = article_body.find_all("img")[0]["src"]
+            self.result["img_link"] = self.img_link
 
             # get comment head and body
-            comment_head_list = [
+            self.comment_head_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_h"})
             ]
-            comment_body_list = [
+            self.comment_body_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
             ]
-
-            # download audio and comment
-            for idx, item in enumerate(comment_head_list):
-                result["comment"].append({"head": item, "body": comment_body_list[idx]})
-
-                temp_arr = re.findall(r"\w+", item)
-                file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
-
-                self.save_upload_audio(
-                    f"{path}/音声ファイル/{file_name}.mp3",
-                    audio_driver_id,
-                    comment_body_list[idx],
-                )
-
-                self.save_upload_txt(
-                    f"{path}/記事/{file_name}.txt",
-                    comment_driver_id,
-                    comment_body_list[idx],
-                )
-            with open(f"{path}/all_info.json", mode="w", encoding="utf-8") as f:
-                json.dump(result, f, ensure_ascii=False)
-            self.upload_file(article_driver_id, f"{path}/all_info.json")
-
+        self.save_upload()
         return
 
 

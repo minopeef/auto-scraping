@@ -130,65 +130,7 @@ class Rock(Base):
         self.path = "自動化/なんJ PRIDE"
         self.url = "http://blog.livedoor.jp/rock1963roll/"
         self.driver_id = "1DVSgFkkssr7dBehXeMkE8nwdfi4say8u"
-
-    def run(self):
-        resp = requests.get(self.url)
-        soup = BeautifulSoup(resp.text, features="html.parser")
-        recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
-        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
-        for _link in recent_link_list:
-            self.result = {
-                "title": "",
-                "link": _link,
-                "path": "",
-                "comment": [],
-                "img_link": "",
-            }
-            # get all html
-            resp = requests.get(_link)
-            soup = BeautifulSoup(resp.text, features="html.parser")
-
-            # get article head html
-            self.article_head = soup.find("div", attrs={"class": "article-header"})
-
-            # get deployed time
-            self.date_time = self.article_head.find("abbr")["title"]
-            self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
-
-            # get title
-            title = self.article_head.find("h2").text.strip()
-            self.result["title"] = title
-
-            # get save path
-            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
-            self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
-            self.result["path"] = self.article_path
-
-            # get article body html
-            article_body = soup.find("div", attrs={"class": "article-body-inner"})
-
-            # get image link
-            self.img_link = article_body.find_all("img")[0]["src"]
-            self.result["img_link"] = self.img_link
-
-            # get comment head and body
-            self.comment_head_list = [
-                x.text.strip()
-                for x in article_body.find_all("div", attrs={"class": "t_h"})
-            ]
-            self.comment_body_list = [
-                x.text.strip()
-                for x in article_body.find_all("div", attrs={"class": "t_b"})
-            ]
-        self.save_upload()
-        return
-
-
-class Yakiusoku(Base):
-    def __init__(self) -> None:
-        self.name = "日刊やきう速報"
-        self.path = "自動化/日刊やきう速報"
-        self.url = "http://blog.livedoor.jp/yakiusoku/"
+        self.result = []
 
     def run(self):
         resp = requests.get(self.url)
@@ -208,27 +150,92 @@ class Yakiusoku(Base):
             soup = BeautifulSoup(resp.text, features="html.parser")
 
             # get article head html
-            article_head = soup.find(attrs={"class": "article-header"})
+            self.article_head = soup.find("div", attrs={"class": "article-header"})
 
             # get deployed time
-            date_time = article_head.find(attrs={"class": "article-date"}).text.strip()
-            date_time = "".join(re.findall(r"\d+", date_time))[:12]
+            self.date_time = self.article_head.find("abbr")["title"]
+            self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
 
             # get title
-            title = article_head.find(attrs={"class": "article-title"}).text.strip()
+            title = self.article_head.find("h2").text.strip()
             result["title"] = title
 
             # get save path
-            article_head = " ".join(re.findall(r"\w*", title)).strip()
-            path = f"{self.path}/{date_time}_{article_head}"
-            result["path"] = path
+            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
+            result["path"] = self.article_path
+
+            # get article body html
+            article_body = soup.find("div", attrs={"class": "article-body-inner"})
+
+            # get image link
+            self.img_link = article_body.find_all("img")[0]["src"]
+            result["img_link"] = self.img_link
+
+            # get comment head and body
+            self.comment_head_list = [
+                x.text.strip()
+                for x in article_body.find_all("div", attrs={"class": "t_h"})
+            ]
+            self.comment_body_list = [
+                x.text.strip()
+                for x in article_body.find_all("div", attrs={"class": "t_b"})
+            ]
+            result["comment"] = self.comment_body_list
+            self.result.append(result)
+        self.save_upload()
+        return
+
+
+class Yakiusoku(Base):
+    def __init__(self) -> None:
+        self.name = "日刊やきう速報"
+        self.path = "自動化/日刊やきう速報"
+        self.url = "http://blog.livedoor.jp/yakiusoku/"
+
+    def run(self):
+        resp = requests.get(self.url)
+        soup = BeautifulSoup(resp.text, features="html.parser")
+        recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
+        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
+        for _link in recent_link_list:
+            self.result = {
+                "title": "",
+                "link": _link,
+                "path": "",
+                "comment": [],
+                "img_link": "",
+            }
+            # get all html
+            resp = requests.get(_link)
+            soup = BeautifulSoup(resp.text, features="html.parser")
+
+            # get article head html
+            self.article_head = soup.find(attrs={"class": "article-header"})
+
+            # get deployed time
+            self.date_time = self.article_head.find(
+                attrs={"class": "article-date"}
+            ).text.strip()
+            self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
+
+            # get title
+            title = self.article_head.find(
+                attrs={"class": "article-title"}
+            ).text.strip()
+            self.result["title"] = title
+
+            # get save path
+            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            path = f"{self.path}/{self.date_time}_{self.article_head}"
+            self.result["path"] = path
 
             # get article body html
             article_body = soup.find("div", attrs={"class": "article-body-inner"})
 
             # get image link
             img_link = article_body.find_all("img")[0]["src"]
-            result["img_link"] = img_link
+            self.result["img_link"] = img_link
 
             # create path
             Path(f"{path}/音声ファイル").mkdir(parents=True, exist_ok=True)
@@ -249,7 +256,7 @@ class Yakiusoku(Base):
             # download audio and comment
             for idx, item in enumerate(comment_head_list):
                 try:
-                    result["comment"].append(
+                    self.result["comment"].append(
                         {"head": item, "body": comment_body_list[idx]}
                     )
 
@@ -266,7 +273,7 @@ class Yakiusoku(Base):
                 except:  # noqa
                     continue
             with open(f"{path}/all_info.json", mode="w", encoding="utf-8") as f:
-                json.dump(result, f, ensure_ascii=False)
+                json.dump(self.result, f, ensure_ascii=False)
 
         return
 

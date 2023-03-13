@@ -98,9 +98,6 @@ class Base:
 
         # download audio and comment
         for idx, item in enumerate(self.comment_head_list):
-            self.result["comment"].append(
-                {"head": item, "body": self.comment_body_list[idx]}
-            )
 
             temp_arr = re.findall(r"\w+", item)
             file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
@@ -183,7 +180,7 @@ class Rock(Base):
             ]
             result["comment"] = self.comment_body_list
             self.result.append(result)
-        self.save_upload()
+            self.save_upload()
         return
 
 

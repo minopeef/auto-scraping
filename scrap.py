@@ -97,21 +97,24 @@ class Base:
         self.download_img(self.article_path, self.article_driver_id, self.img_link)
 
         # download audio and comment
-        for idx, item in enumerate(self.comment_head_list):
+        for idx, item in enumerate(self.comment_body_list):
             try:
-                temp_arr = re.findall(r"\w+", item)
-                file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
+                # temp_arr = re.findall(r"\w+", item)
+                # file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
+                file_name = item
+                if len(item) > 5:
+                    file_name = item[:5]
 
                 self.save_upload_audio(
                     f"{self.article_path}/音声ファイル/{file_name}.mp3",
                     self.audio_driver_id,
-                    self.comment_body_list[idx],
+                    item,
                 )
 
                 self.save_upload_txt(
                     f"{self.article_path}/記事/{file_name}.txt",
                     self.comment_driver_id,
-                    self.comment_body_list[idx],
+                    item,
                 )
             except:  # noqa
                 continue
@@ -253,7 +256,71 @@ class Yakiusoku(Base):
         return
 
 
+class Livejupiter2(Base):
+    def __init__(self) -> None:
+        self.name = "なんJ（まとめては）いかんのか？"
+        self.path = "自動化/なんJ（まとめては）いかんのか？"
+        self.url = "http://blog.livedoor.jp/livejupiter2/"
+        self.driver_id = "1GJxSjcyk6qB27kpXjBuysM27AjiT9HLk"
+        self.result = []
+
+    def run(self):
+        resp = requests.get(self.url)
+        soup = BeautifulSoup(resp.text, features="html.parser")
+        recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
+        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
+        for _link in recent_link_list:
+            result = {
+                "title": "",
+                "link": _link,
+                "path": "",
+                "comment": [],
+                "img_link": [],
+            }
+            # get all html
+            resp = requests.get(_link)
+            soup = BeautifulSoup(resp.text, features="html.parser")
+
+            # get article head html
+            self.article_head = soup.find(attrs={"class": "article-header"})
+
+            # get title
+            title = self.article_head.find(
+                attrs={"class": "article-title"}
+            ).text.strip()
+            result["title"] = title
+
+            # get article body html
+            article_body = soup.find(
+                "div", attrs={"class": "article-body entry-content"}
+            )
+
+            # get deployed time
+            self.date_time = article_body.find("abbr")["title"].strip()
+            self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
+
+            # get save path
+            self.article_head = " ".join(re.findall(r"\w*", title)).strip()
+            self.article_path = f"{self.path}/{self.date_time}_{self.article_head}"
+            result["path"] = self.article_path
+
+            # get image link
+            self.img_link = [x["src"] for x in article_body.find_all("img")]
+            result["img_link"] = self.img_link
+
+            # get comment head and body
+            self.comment_body_list = [
+                " ".join(re.findall(r"\w+", x.find("b").text.strip()))
+                for x in article_body.find_all("dd")
+            ]
+
+            result["comment"] = self.comment_body_list
+            self.result.append(result)
+            self.save_upload()
+
+
 # Rock().run()
-Yakiusoku().run()
+# Yakiusoku().run()
+Livejupiter2().run()
 # Base().download_audio("static","""abc""")
 # print(os.listdir("自動化/MLB NEWS@まとめ"))

@@ -96,24 +96,26 @@ class Base:
         # save image
         [
             self.download_img(
-                self.article_path, self.article_driver_id, x, f"{idx}_img.jpg"
+                self.article_path, self.article_driver_id, x, f"{idx + 1}_img.jpg"
             )
             for idx, x in enumerate(self.img_link)
         ]
 
         # download audio and comment
-        for idx, item in enumerate(self.comment_body_list):
+        name_idx = 0
+        for item in self.comment_body_list:
             try:
+                name_idx += 1
                 # temp_arr = re.findall(r"\w+", item)
                 # file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]
                 file_name = item
                 if len(item) > 5:
                     file_name = item[:5]
 
-                if idx < 10:
-                    file_name = f"0{idx}_{file_name}"
+                if name_idx < 10:
+                    file_name = f"0{name_idx}_{file_name}"
                 else:
-                    file_name = f"{idx}_{file_name}"
+                    file_name = f"{name_idx}_{file_name}"
 
                 self.save_upload_audio(
                     f"{self.article_path}/音声ファイル/{file_name}.mp3",
@@ -333,7 +335,7 @@ class Livejupiter2(Base):
 
 
 # Rock().run()
-# Yakiusoku().run()
-Livejupiter2().run()
+Yakiusoku().run()
+# Livejupiter2().run()
 # Base().download_audio("static","""abc""")
 # print(os.listdir("自動化/MLB NEWS@まとめ"))

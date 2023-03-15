@@ -1,8 +1,11 @@
 import json
+import os
 import re
 import shutil
+import time
 from pathlib import Path
 
+import pymiere
 import requests
 from bs4 import BeautifulSoup
 from pydrive.auth import GoogleAuth
@@ -19,8 +22,13 @@ class Base:
         self.path = None
         self.url = None
         self.driver_id = None
+        self.article_path = None
+        self.date_time = None
+        self.article_head = None
+        self.img_link = None
+        self.comment_body_list = None
 
-    def download_img(self, path: str, driver_id: str, link: str, name: str):
+    def download_upload_img(self, path: str, driver_id: str, link: str, name: str):
         r = requests.get(link, stream=True)
         r.raw.decode_content = True
         with open(f"{path}/{name}", "wb") as f:
@@ -81,6 +89,7 @@ class Base:
         # create local path
         Path(f"{self.article_path}/音声ファイル").mkdir(parents=True, exist_ok=True)
         Path(f"{self.article_path}/記事").mkdir(parents=True, exist_ok=True)
+        Path(f"{self.article_path}/画像").mkdir(parents=True, exist_ok=True)
 
         # create driver path
         self.article_driver_id = self.create_driver_directory(
@@ -92,11 +101,17 @@ class Base:
         self.comment_driver_id = self.create_driver_directory(
             "記事", self.article_driver_id
         )
+        self.comment_driver_id = self.create_driver_directory(
+            "画像", self.article_driver_id
+        )
 
         # save image
         [
-            self.download_img(
-                self.article_path, self.article_driver_id, x, f"{idx + 1}_img.jpg"
+            self.download_upload_img(
+                f"{self.article_path}/画像",
+                self.article_driver_id,
+                x,
+                f"{idx + 1}_img.jpg",
             )
             for idx, x in enumerate(self.img_link)
         ]
@@ -136,6 +151,49 @@ class Base:
             json.dump(self.result, f, ensure_ascii=False)
         self.upload_file(self.article_driver_id, f"{self.article_path}/all_info.json")
 
+    def run_premiere(self):
+        # copy default.prproj
+        # shutil.copyfile("default.prproj", f"{self.article_path}/result.prproj")
+        os.popen("default.prproj")
+
+        for x in range(20):
+            try:
+                assert pymiere.objects.app.isDocumentOpen(), "loading"
+                print("opened Premiere")
+                break
+            except:  # noqa
+                time.sleep(1)
+                print("loading")
+                if x == 19:
+                    assert False, "error loading premiere"
+        # import files
+        files_path = [
+            os.path.abspath(f"{self.article_path}/音声ファイル/{x}")
+            for x in os.listdir(f"{self.article_path}/音声ファイル")
+        ]
+        # files_path += [os.path.abspath(x) for x in os.listdir(f"{self.article_path}/音声ファイル")]
+        files_path += [
+            os.path.abspath(f"{self.article_path}/画像/{x}")
+            for x in os.listdir(f"{self.article_path}/画像")
+        ]
+        print("importing files")
+        for file in files_path:
+            pymiere.objects.app.project.importFiles(
+                [file],
+                True,
+                pymiere.objects.app.project.rootItem,
+                True,
+            )
+        print("saving premiere project")
+        pymiere.objects.app.project.saveAs(f"{self.article_path}/result.prproj")
+
+        try:
+            pymiere.objects.app.quit()
+        except Exception as e:
+            print(e)
+
+        print("Successfully ended")
+
 
 # なんJ PRIDE
 class Rock(Base):
@@ -150,7 +208,7 @@ class Rock(Base):
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
-        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
+        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")][:1]
         for _link in recent_link_list:
             result = {
                 "title": "",
@@ -198,6 +256,7 @@ class Rock(Base):
             result["comment"] = self.comment_body_list
             self.result.append(result)
             self.save_upload()
+            self.run_premiere()
         return
 
 
@@ -213,7 +272,7 @@ class Yakiusoku(Base):
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
-        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
+        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")][:1]
         for _link in recent_link_list:
             result = {
                 "title": "",
@@ -280,7 +339,7 @@ class Livejupiter2(Base):
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
-        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")]
+        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")][:1]
         for _link in recent_link_list:
             result = {
                 "title": "",
@@ -334,8 +393,9 @@ class Livejupiter2(Base):
             self.save_upload()
 
 
-# Rock().run()
-Yakiusoku().run()
+Rock().run()
+# Yakiusoku().run()
 # Livejupiter2().run()
 # Base().download_audio("static","""abc""")
 # print(os.listdir("自動化/MLB NEWS@まとめ"))
+# print(os.listdir("templates"))

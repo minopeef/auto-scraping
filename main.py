@@ -415,5 +415,5 @@ class Livejupiter2(Base):
 #
 
 Rock().run()
-# Yakiusoku().run()
-# Livejupiter2().run()
+Yakiusoku().run()
+Livejupiter2().run()

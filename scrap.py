@@ -27,6 +27,7 @@ class Base:
         self.article_head = None
         self.img_link = None
         self.comment_body_list = None
+        self.result_movie_path = None
 
     def download_upload_img(self, path: str, driver_id: str, link: str, name: str):
         r = requests.get(link, stream=True)
@@ -77,6 +78,7 @@ class Base:
 
     def upload_file(self, driver_id: str, local_path: str):
         file_name = local_path.split("/")[-1]
+        file_name = file_name.split("\\")[-1]
         file = drive.CreateFile({"title": file_name, "parents": [{"id": driver_id}]})
         file.SetContentFile(local_path)
         file.Upload()
@@ -101,7 +103,7 @@ class Base:
         self.comment_driver_id = self.create_driver_directory(
             "記事", self.article_driver_id
         )
-        self.comment_driver_id = self.create_driver_directory(
+        self.image_driver_id = self.create_driver_directory(
             "画像", self.article_driver_id
         )
 
@@ -109,7 +111,7 @@ class Base:
         [
             self.download_upload_img(
                 f"{self.article_path}/画像",
-                self.article_driver_id,
+                self.image_driver_id,
                 x,
                 f"{idx + 1}_img.jpg",
             )
@@ -153,8 +155,10 @@ class Base:
 
     def run_premiere(self):
         # copy default.prproj
-        # shutil.copyfile("default.prproj", f"{self.article_path}/result.prproj")
-        os.popen("default.prproj")
+        shutil.copyfile(
+            "default.prproj", os.path.abspath(f"{self.article_path}/result.prproj")
+        )
+        os.popen(os.path.abspath(f"{self.article_path}/result.prproj"))
 
         for x in range(20):
             try:
@@ -171,26 +175,41 @@ class Base:
             os.path.abspath(f"{self.article_path}/音声ファイル/{x}")
             for x in os.listdir(f"{self.article_path}/音声ファイル")
         ]
-        # files_path += [os.path.abspath(x) for x in os.listdir(f"{self.article_path}/音声ファイル")]
         files_path += [
             os.path.abspath(f"{self.article_path}/画像/{x}")
             for x in os.listdir(f"{self.article_path}/画像")
         ]
         print("importing files")
         for file in files_path:
-            pymiere.objects.app.project.importFiles(
-                [file],
-                True,
-                pymiere.objects.app.project.rootItem,
-                True,
-            )
-        print("saving premiere project")
-        pymiere.objects.app.project.saveAs(f"{self.article_path}/result.prproj")
+            try:
+                pymiere.objects.app.project.importFiles(
+                    [file],
+                    True,
+                    pymiere.objects.app.project.rootItem,
+                    True,
+                )
+            except:  # noqa
+                continue
+        # print("saving premiere project")
+        # pymiere.objects.app.project.saveAs(f"{self.article_path}/result.prproj")
 
-        try:
-            pymiere.objects.app.quit()
-        except Exception as e:
-            print(e)
+        while True:
+            try:
+                if pymiere.objects.app.isDocumentOpen():
+                    time.sleep(3)
+                else:
+                    return
+            except:  # noqa
+                self.result_movie_path = os.path.abspath(
+                    f"{self.article_path}/result.mp4"
+                )
+                if os.path.isfile(self.result_movie_path):
+                    self.upload_file(self.article_driver_id, self.result_movie_path)
+                return
+        # try:
+        #     pymiere.objects.app.quit()
+        # except Exception as e:
+        #     print(e)
 
         print("Successfully ended")
 
@@ -393,9 +412,8 @@ class Livejupiter2(Base):
             self.save_upload()
 
 
+#
+
 Rock().run()
 # Yakiusoku().run()
 # Livejupiter2().run()
-# Base().download_audio("static","""abc""")
-# print(os.listdir("自動化/MLB NEWS@まとめ"))
-# print(os.listdir("templates"))

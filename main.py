@@ -343,6 +343,7 @@ class Yakiusoku(Base):
             result["comment"] = self.comment_body_list
             self.result.append(result)
             self.save_upload()
+            self.run_premiere()
         return
 
 
@@ -410,9 +411,8 @@ class Livejupiter2(Base):
             result["comment"] = self.comment_body_list
             self.result.append(result)
             self.save_upload()
+            self.run_premiere()
 
-
-#
 
 Rock().run()
 Yakiusoku().run()

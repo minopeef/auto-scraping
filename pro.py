@@ -1,19 +1,14 @@
-import subprocess
+import os
 import threading
 import time
 
 import pymiere
 
 
+# stdout
 def run_premiere():
     print("thread")
-    subprocess.run(
-        ["C:\\Program Files\\Adobe\\Adobe Premiere Pro 2023\\Adobe Premiere Pro.exe"]
-    )
-    # subprocess.run(["cmd", "C:\\Users\\admin\\Documents\\project\\auto-scraping\\default.prproj", "-lha"])
-
-
-# print(project)
+    os.popen("default.prproj")
 
 
 def main():
@@ -27,6 +22,7 @@ def main():
         except:  # noqa
             time.sleep(3)
     print("opened")
+    print(2)
 
 
 x1 = threading.Thread(target=run_premiere)

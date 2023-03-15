@@ -1,4 +1,5 @@
 import os
+import shutil
 import threading
 import time
 
@@ -8,7 +9,10 @@ import pymiere
 # stdout
 def run_premiere():
     print("thread")
-    os.popen("default.prproj")
+    default_path = "./default.prproj"
+    target_path = "target.prproj"
+    shutil.copyfile(default_path, target_path)
+    os.popen(target_path)
 
 
 def main():

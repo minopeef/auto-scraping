@@ -151,6 +151,7 @@ class Base:
         pass
 
     def save_upload(self):
+        print("saving and uploading data set")
         # create local path
         Path(f"{self.article_path}/音声ファイル").mkdir(parents=True, exist_ok=True)
         Path(f"{self.article_path}/記事").mkdir(parents=True, exist_ok=True)
@@ -233,9 +234,10 @@ class Base:
                 break
             except:  # noqa
                 time.sleep(1)
-                print("loading")
+                if x == 0:
+                    print("running premiere")
                 if x == 19:
-                    assert False, "error loading premiere"
+                    assert False, "error running premiere"
         # import files
         files_path = [
             os.path.abspath(f"{self.article_path}/音声ファイル/{x}")
@@ -258,7 +260,8 @@ class Base:
                 continue
         # print("saving premiere project")
         # pymiere.objects.app.project.saveAs(f"{self.article_path}/result.prproj")
-
+        print("imported files")
+        print("plz edit movie")
         while True:
             try:
                 if pymiere.objects.app.isDocumentOpen():
@@ -271,13 +274,12 @@ class Base:
                 )
                 if os.path.isfile(self.result_movie_path):
                     self.upload_file(self.article_driver_id, self.result_movie_path)
+                print("completed")
                 return
         # try:
         #     pymiere.objects.app.quit()
         # except Exception as e:
         #     print(e)
-
-        print("Successfully ended")
 
 
 # なんJ PRIDE
@@ -290,6 +292,7 @@ class Rock(Base):
         self.result = []
 
     def run(self):
+        print("scraping なんJ PRIDE")
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
@@ -354,6 +357,7 @@ class Yakiusoku(Base):
         self.result = []
 
     def run(self):
+        print("scraping 日刊やきう速報")
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
@@ -422,6 +426,7 @@ class Livejupiter2(Base):
         self.result = []
 
     def run(self):
+        print("scraping なんJ（まとめては）いかんのか？")
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})

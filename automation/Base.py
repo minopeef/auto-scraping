@@ -10,6 +10,7 @@ import requests
 from PIL import Image
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+from pymiere.wrappers import time_from_seconds
 
 gauth = GoogleAuth()
 # Try to load saved client credentials
@@ -237,6 +238,13 @@ class Base:
                 if x == 19:
                     assert False, "error running premiere"
         print("opened Premiere")
+        project = pymiere.objects.app.project
+        # create result sequence
+        pymiere.objects.qe.project.newSequence("result", self.article_path)
+        sequence = [s for s in project.sequences if s.name == "result"][0]
+        project.openSequence(sequenceID=sequence.sequenceID)
+        project.activeSequence
+
         # import files
         files_path = [
             os.path.abspath(f"{self.article_path}/音声ファイル/{x}")
@@ -249,18 +257,29 @@ class Base:
         print("importing files")
         for file in files_path:
             try:
-                pymiere.objects.app.project.importFiles(
+                project.importFiles(
                     [file],
                     True,
-                    pymiere.objects.app.project.rootItem,
+                    project.rootItem,
                     True,
+                )
+                items = [
+                    project.rootItem.findItemsMatchingMediaPath(
+                        file, ignoreSubclips=False
+                    )
+                ]
+                project.activeSequence.videoTracks[0].insertClip(
+                    items[0], time_from_seconds(0)
                 )
             except:  # noqa
                 continue
         # print("saving premiere project")
-        # pymiere.objects.app.project.saveAs(f"{self.article_path}/result.prproj")
+        # project.saveAs(f"{self.article_path}/result.prproj")
         print("imported files")
+        # add to sequence
         print("plz edit movie")
+
+        # check ended
         while True:
             try:
                 if pymiere.objects.app.isDocumentOpen():

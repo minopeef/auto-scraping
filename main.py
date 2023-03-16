@@ -8,6 +8,7 @@ from pathlib import Path
 import pymiere
 import requests
 from bs4 import BeautifulSoup
+from PIL import Image
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -41,15 +42,60 @@ class Base:
         self.comment_body_list = None
         self.result_movie_path = None
 
+    def check_gif(self, local_path):
+        gif = Image.open(local_path)
+        try:
+            gif.seek(1)
+        except:  # noqa
+            isanimated = False
+        else:
+            isanimated = True
+
+        return isanimated
+
+    def gif_to_jpg(local_path):
+        try:
+            im = Image.open(local_path)
+        except OSError:
+            print("Cant load", local_path)
+        i = 0
+        mypalette = im.getpalette()
+
+        try:
+            while 1:
+                im.putpalette(mypalette)
+                new_im = Image.new("RGB", im.size)
+                new_im.paste(im)
+                new_im.save(local_path)
+
+                i += 1
+                im.seek(im.tell() + 1)
+
+        except:  # noqa
+            pass
+
+        return
+
     def download_upload_img(self, path: str, driver_id: str, link: str, name: str):
+        # download image
         r = requests.get(link, stream=True)
         r.raw.decode_content = True
+        # save image
         with open(f"{path}/{name}", "wb") as f:
             shutil.copyfileobj(r.raw, f)
+
+        # if gif, change to jpg because premiere dosen't support animated image
+        gif_flag = self.check_gif(f"{path}/{name}")
+        if gif_flag:
+            self.gif_to_jpg(f"{path}/{name}")
+
+        # upload to google drive
         self.upload_file(driver_id, f"{path}/{name}")
 
     def save_upload_audio(self, local_path: str, driver_id: str, text: str):
+        # servide url convert txt to speech
         api_url = "https://www.yukumo.net/api/v2/aqtk1/koe.mp3"
+        # cut text
         if len(text) > 140:
             text = text[:140]
         params = {
@@ -64,6 +110,8 @@ class Base:
         #     "user-agent": """user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
         #     (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"""
         # }
+
+        # download and upload audio
         resp = requests.get(url=api_url, params=params)
         with open(local_path, "wb") as f:
             f.write(resp.content)

@@ -212,6 +212,7 @@ class Base:
                     item,
                 )
             except:  # noqa
+                name_idx -= 1
                 continue
         with open(
             f"{self.article_path}/all_info.json", mode="w", encoding="utf-8"

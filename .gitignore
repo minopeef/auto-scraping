@@ -1,6 +1,8 @@
 .venv
 .env
 client_secrets.json
+credentials
+settings.yaml
 **/__pycache__
 自動化
 creds.txt

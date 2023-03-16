@@ -14,7 +14,7 @@ from pydrive.drive import GoogleDrive
 
 gauth = GoogleAuth()
 # Try to load saved client credentials
-gauth.LoadCredentialsFile("creds.txt")
+gauth.LoadCredentialsFile("credentials")
 if gauth.credentials is None:
     # Authenticate if they're not there
     gauth.LocalWebserverAuth()
@@ -25,7 +25,7 @@ else:
     # Initialize the saved creds
     gauth.Authorize()
 # Save the current credentials to a file
-gauth.SaveCredentialsFile("creds.txt")
+gauth.SaveCredentialsFile("credentials")
 drive = GoogleDrive(gauth)
 
 
@@ -77,12 +77,15 @@ class Base:
         return
 
     def download_upload_img(self, path: str, driver_id: str, link: str, name: str):
-        # download image
-        r = requests.get(link, stream=True)
-        r.raw.decode_content = True
-        # save image
-        with open(f"{path}/{name}", "wb") as f:
-            shutil.copyfileobj(r.raw, f)
+        try:
+            # download image
+            r = requests.get(link, stream=True)
+            r.raw.decode_content = True
+            # save image
+            with open(f"{path}/{name}", "wb") as f:
+                shutil.copyfileobj(r.raw, f)
+        except:  # noqa
+            return
 
         # if gif, change to jpg because premiere dosen't support animated image
         gif_flag = self.check_gif(f"{path}/{name}")

@@ -12,7 +12,19 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
+# Try to load saved client credentials
+gauth.LoadCredentialsFile("creds.txt")
+if gauth.credentials is None:
+    # Authenticate if they're not there
+    gauth.LocalWebserverAuth()
+elif gauth.access_token_expired:
+    # Refresh them if expired
+    gauth.Refresh()
+else:
+    # Initialize the saved creds
+    gauth.Authorize()
+# Save the current credentials to a file
+gauth.SaveCredentialsFile("creds.txt")
 drive = GoogleDrive(gauth)
 
 
@@ -122,6 +134,9 @@ class Base:
         name_idx = 0
         for item in self.comment_body_list:
             try:
+                if not re.findall(r"\w+", item):
+                    continue
+
                 name_idx += 1
                 # temp_arr = re.findall(r"\w+", item)
                 # file_name = str(idx) + "_" + temp_arr[1] + temp_arr[-1]

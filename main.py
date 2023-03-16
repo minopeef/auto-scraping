@@ -151,7 +151,7 @@ class Base:
         pass
 
     def save_upload(self):
-        print("saving and uploading data set")
+        print("downloading and uploading data set")
         # create local path
         Path(f"{self.article_path}/音声ファイル").mkdir(parents=True, exist_ok=True)
         Path(f"{self.article_path}/記事").mkdir(parents=True, exist_ok=True)
@@ -221,6 +221,7 @@ class Base:
         self.upload_file(self.article_driver_id, f"{self.article_path}/all_info.json")
 
     def run_premiere(self):
+        print("running premiere")
         # copy default.prproj
         shutil.copyfile(
             "default.prproj", os.path.abspath(f"{self.article_path}/result.prproj")
@@ -230,14 +231,12 @@ class Base:
         for x in range(20):
             try:
                 assert pymiere.objects.app.isDocumentOpen(), "loading"
-                print("opened Premiere")
                 break
             except:  # noqa
                 time.sleep(1)
-                if x == 0:
-                    print("running premiere")
                 if x == 19:
                     assert False, "error running premiere"
+        print("opened Premiere")
         # import files
         files_path = [
             os.path.abspath(f"{self.article_path}/音声ファイル/{x}")
@@ -274,7 +273,7 @@ class Base:
                 )
                 if os.path.isfile(self.result_movie_path):
                     self.upload_file(self.article_driver_id, self.result_movie_path)
-                print("completed")
+                print("completed\n")
                 return
         # try:
         #     pymiere.objects.app.quit()

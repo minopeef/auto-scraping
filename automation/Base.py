@@ -240,7 +240,6 @@ class Base:
         print("opened Premiere")
         project = pymiere.objects.app.project
         # create result sequence
-        pymiere.objects.qe.project.newSequence("result", self.article_path)
         sequence = [s for s in project.sequences if s.name == "result"][0]
         project.openSequence(sequenceID=sequence.sequenceID)
         project.activeSequence
@@ -263,11 +262,9 @@ class Base:
                     project.rootItem,
                     True,
                 )
-                items = [
-                    project.rootItem.findItemsMatchingMediaPath(
-                        file, ignoreSubclips=False
-                    )
-                ]
+                items = project.rootItem.findItemsMatchingMediaPath(
+                    file, ignoreSubclips=False
+                )
                 project.activeSequence.videoTracks[0].insertClip(
                     items[0], time_from_seconds(0)
                 )

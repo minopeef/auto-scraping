@@ -15,16 +15,16 @@ class I6496(Base):
         self.url = "http://blog.livedoor.jp/i6469/"
         self.result = []
         df = pandas.read_csv("drive_info.csv")
-        self.driver_id = df[df["name"] == self.name]["id"][0]
+        self.driver_id = df[df["name"] == self.name]["id"].iloc[0]
 
     def run(self):
         print(f"scraping {self.name}")
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
-        recent_tag = soup.find("ul", attrs={"class": "plugin-recent_articles"})
+        recent_tag = soup.find("div", attrs={"class": "plugin-recent_articles"})
         recent_link_list = [
             x.find("a")["href"]
-            for x in recent_tag.find_all(attrs={"classs": "sidebody"})
+            for x in recent_tag.find_all(attrs={"class": "sidebody"})
         ][:1]
         for _link in recent_link_list:
             result = {

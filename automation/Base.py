@@ -54,7 +54,7 @@ class Base:
 
         return isanimated
 
-    def gif_to_jpg(local_path):
+    def gif_to_jpg(self, local_path):
         try:
             im = Image.open(local_path)
         except OSError:
@@ -111,8 +111,9 @@ class Base:
             "kanji": text,
         }
         headers = {
-            "User-Agent": """Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
-            (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36""",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+            " Chrome/110.0.0.0 Safari/537.36"
+            "",
             # 'From': 'youremail@domain.example'  # This is another valid field
         }
 
@@ -234,7 +235,7 @@ class Base:
         shutil.copyfile(
             "default.prproj", os.path.abspath(f"{self.article_path}/result.prproj")
         )
-        os.popen(os.path.abspath(f"{self.article_path}/result.prproj"))
+        os.popen('"' + os.path.abspath(f"{self.article_path}/result.prproj") + '"')
 
         for x in range(20):
             try:

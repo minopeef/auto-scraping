@@ -14,7 +14,7 @@ class Yakiusoku(Base):
         self.url = "http://blog.livedoor.jp/yakiusoku/"
         self.result = []
         df = pandas.read_csv("drive_info.csv")
-        self.driver_id = df[df["name"] == self.name]["id"][0]
+        self.driver_id = df[df["name"] == self.name]["id"].iloc[0]
 
     def run(self):
         print(f"scraping {self.name}")

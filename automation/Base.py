@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pymiere
 import requests
+from mutagen.mp3 import MP3
 from PIL import Image
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -109,13 +110,14 @@ class Base:
             "volume": "100",
             "kanji": text,
         }
-        # headers = {
-        #     "user-agent": """user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
-        #     (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"""
-        # }
+        headers = {
+            "User-Agent": """Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+            (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36""",
+            # 'From': 'youremail@domain.example'  # This is another valid field
+        }
 
         # download and upload audio
-        resp = requests.get(url=api_url, params=params)
+        resp = requests.get(url=api_url, params=params, headers=headers)
         with open(local_path, "wb") as f:
             f.write(resp.content)
         self.upload_file(driver_id, local_path)
@@ -184,6 +186,7 @@ class Base:
 
         # download audio and comment
         name_idx = 0
+        all_comment = ""
         for item in self.comment_body_list:
             try:
                 if not re.findall(r"\w+", item):
@@ -212,9 +215,13 @@ class Base:
                     self.comment_driver_id,
                     item,
                 )
+                all_comment += item + "\n"
             except:  # noqa
                 name_idx -= 1
                 continue
+        self.save_upload_txt(
+            f"{self.article_path}/comments.txt", self.article_driver_id, all_comment
+        )
         with open(
             f"{self.article_path}/all_info.json", mode="w", encoding="utf-8"
         ) as f:
@@ -254,6 +261,8 @@ class Base:
             for x in os.listdir(f"{self.article_path}/画像")
         ]
         print("importing files")
+        audio_from_seconds = 0
+        image_from_seconds = 0
         for file in files_path:
             try:
                 project.importFiles(
@@ -265,11 +274,19 @@ class Base:
                 items = project.rootItem.findItemsMatchingMediaPath(
                     file, ignoreSubclips=False
                 )
-                project.activeSequence.videoTracks[0].insertClip(
-                    items[0], time_from_seconds(0)
-                )
+                if file[-3:] == "mp3":
+                    project.activeSequence.videoTracks[0].insertClip(
+                        items[0], time_from_seconds(audio_from_seconds)
+                    )
+                    audio_from_seconds += MP3(file).info.length - 0.5
+                else:
+                    project.activeSequence.videoTracks[0].insertClip(
+                        items[0], time_from_seconds(image_from_seconds)
+                    )
+                    image_from_seconds += 3
             except:  # noqa
                 continue
+
         # print("saving premiere project")
         # project.saveAs(f"{self.article_path}/result.prproj")
         print("imported files")

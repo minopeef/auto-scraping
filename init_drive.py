@@ -5,7 +5,13 @@ import pandas
 from automation.Base import Base
 
 root_name = "自動化"
-sites = ["なんJ PRIDE", "なんJ（まとめては）いかんのか？", "なんじぇいスタジアム＠なんJまとめ", "まとめ", "日刊やきう速報"]
+sites = [
+    "なんJ PRIDE",
+    "なんJ（まとめては）いかんのか？",
+    "なんじぇいスタジアム＠なんJまとめ",
+    "MLB NEWS@まとめ",
+    "日刊やきう速報",
+]
 # create local path
 
 root_id = Base().create_driver_directory(root_name)

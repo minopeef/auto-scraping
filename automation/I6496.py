@@ -7,11 +7,12 @@ from bs4 import BeautifulSoup
 from automation.Base import Base
 
 
-class Yakiusoku(Base):
+# なんJ PRIDE
+class I6496(Base):
     def __init__(self) -> None:
-        self.name = "日刊やきう速報"
-        self.path = "自動化/日刊やきう速報"
-        self.url = "http://blog.livedoor.jp/yakiusoku/"
+        self.name = "MLB NEWS@まとめ"
+        self.path = "自動化/MLB NEWS@まとめ"
+        self.url = "http://blog.livedoor.jp/i6469/"
         self.result = []
         df = pandas.read_csv("drive_info.csv")
         self.driver_id = df[df["name"] == self.name]["id"][0]
@@ -35,18 +36,14 @@ class Yakiusoku(Base):
             soup = BeautifulSoup(resp.text, features="html.parser")
 
             # get article head html
-            self.article_head = soup.find(attrs={"class": "article-header"})
+            self.article_head = soup.find("div", attrs={"class": "article-header"})
 
             # get deployed time
-            self.date_time = self.article_head.find(
-                attrs={"class": "article-date"}
-            ).text.strip()
+            self.date_time = self.article_head.find("abbr")["title"]
             self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
 
             # get title
-            title = self.article_head.find(
-                attrs={"class": "article-title"}
-            ).text.strip()
+            title = self.article_head.find("h2").text.strip()
             result["title"] = title
 
             # get save path
@@ -62,10 +59,10 @@ class Yakiusoku(Base):
             result["img_link"] = self.img_link
 
             # get comment head and body
-            # self.comment_head_list = [
-            #     x.text.strip()
-            #     for x in article_body.find_all("div", attrs={"class": "t_h"})
-            # ]
+            self.comment_head_list = [
+                x.text.strip()
+                for x in article_body.find_all("div", attrs={"class": "t_h"})
+            ]
             self.comment_body_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})

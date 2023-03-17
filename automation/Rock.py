@@ -18,7 +18,7 @@ class Rock(Base):
         self.driver_id = df[df["name"] == self.name]["id"][0]
 
     def run(self):
-        print("scraping なんJ PRIDE")
+        print(f"scraping {self.name}")
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})

@@ -21,8 +21,11 @@ class I6496(Base):
         print(f"scraping {self.name}")
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
-        recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
-        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")][:1]
+        recent_tag = soup.find("ul", attrs={"class": "plugin-recent_articles"})
+        recent_link_list = [
+            x.find("a")["href"]
+            for x in recent_tag.find_all(attrs={"classs": "sidebody"})
+        ][:1]
         for _link in recent_link_list:
             result = {
                 "title": "",

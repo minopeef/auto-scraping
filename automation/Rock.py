@@ -1,5 +1,6 @@
 import re
 
+import pandas
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,8 +13,9 @@ class Rock(Base):
         self.name = "なんJ PRIDE"
         self.path = "自動化/なんJ PRIDE"
         self.url = "http://blog.livedoor.jp/rock1963roll/"
-        self.driver_id = "1DVSgFkkssr7dBehXeMkE8nwdfi4say8u"
         self.result = []
+        df = pandas.read_csv("drive_info.csv")
+        self.driver_id = df[df["name"] == self.name]["id"][0]
 
     def run(self):
         print("scraping なんJ PRIDE")

@@ -1,5 +1,6 @@
 import re
 
+import pandas
 import requests
 from bs4 import BeautifulSoup
 
@@ -11,8 +12,10 @@ class Livejupiter2(Base):
         self.name = "なんJ（まとめては）いかんのか？"
         self.path = "自動化/なんJ（まとめては）いかんのか？"
         self.url = "http://blog.livedoor.jp/livejupiter2/"
-        self.driver_id = "1GJxSjcyk6qB27kpXjBuysM27AjiT9HLk"
         self.result = []
+        df = pandas.read_csv("drive_info.csv")
+        self.driver_id = df[df["name"] == self.name]["id"][0]
+        # self.driver_id = "1GJxSjcyk6qB27kpXjBuysM27AjiT9HLk"
 
     def run(self):
         print("scraping なんJ（まとめては）いかんのか？")

@@ -1,5 +1,6 @@
 import re
 
+import pandas
 import requests
 from bs4 import BeautifulSoup
 
@@ -11,8 +12,9 @@ class Yakiusoku(Base):
         self.name = "日刊やきう速報"
         self.path = "自動化/日刊やきう速報"
         self.url = "http://blog.livedoor.jp/yakiusoku/"
-        self.driver_id = "1oFjp2Mg_AlCOLeEpCIFZT3zibdtinlNE"
         self.result = []
+        df = pandas.read_csv("drive_info.csv")
+        self.driver_id = df[df["name"] == self.name]["id"][0]
 
     def run(self):
         print("scraping 日刊やきう速報")

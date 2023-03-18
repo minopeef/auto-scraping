@@ -6,3 +6,5 @@ settings.yaml
 **/__pycache__
 自動化
 creds.txt
+**/Adobe Premiere Pro Auto-Save
+./drive_info.csv

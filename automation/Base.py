@@ -42,6 +42,7 @@ class Base:
         self.img_link = None
         self.comment_body_list = None
         self.result_movie_path = None
+        self.all_comment = ""
 
     def check_gif(self, local_path):
         gif = Image.open(local_path)
@@ -122,6 +123,7 @@ class Base:
         with open(local_path, "wb") as f:
             f.write(resp.content)
         self.upload_file(driver_id, local_path)
+        self.all_comment += text + "\n"
         return
 
     def save_upload_txt(self, local_path: str, driver_id: str, txt: str):
@@ -187,7 +189,6 @@ class Base:
 
         # download audio and comment
         name_idx = 0
-        all_comment = ""
         for item in self.comment_body_list:
             try:
                 if not re.findall(r"\w+", item):
@@ -216,12 +217,13 @@ class Base:
                     self.comment_driver_id,
                     item,
                 )
-                all_comment += item + "\n"
             except:  # noqa
                 name_idx -= 1
                 continue
         self.save_upload_txt(
-            f"{self.article_path}/comments.txt", self.article_driver_id, all_comment
+            f"{self.article_path}/comments.txt",
+            self.article_driver_id,
+            self.all_comment,
         )
         with open(
             f"{self.article_path}/all_info.json", mode="w", encoding="utf-8"
@@ -288,9 +290,37 @@ class Base:
                     image_from_seconds += 3
             except:  # noqa
                 continue
+        # # import text
+        # mogrt_path = os.path.abspath(f"default.mogrt")
+        # # track = project.activeSequence.importMGT(os.path.abspath(f"default.mogrt"), 0, 0, 0)
+        # # mocomp = track.getMGTComponent()
+        # # params = mocomp.displayName
+        # # print(params)
+        # # params
+        # mgt_clip = sequence.importMGT(
+        #     path=mogrt_path,
+        #     time=time_from_seconds(0),  # start time
+        #     videoTrackIndex=0, audioTrackIndex=0  # on which track to place it
+        # )
+        # # get component hosting modifiable template properties
+        # mgt_component = mgt_clip.getMGTComponent()
+        # # handle two types, see Note 2 above
+        # if mgt_component is None:
+        #     # Premiere Pro type, directly use components
+        #     components = mgt_clip.components
+        # else:
+        #     # After Effects type, everything is hosted by the MGT component
+        #     components = [mgt_component]
 
-        # print("saving premiere project")
-        # project.saveAs(f"{self.article_path}/result.prproj")
+        # # for component in components:
+        # #     # iter through MGT properties, display and change values
+        # #     for prop in component.properties:
+        #         # print(prop.displayName)
+        #         # value = prop.getValue()  # for color properties use getColorValue() and setColorValue()
+        #         # print(value)
+        # components[0].properties[0].setValue(self.all_comment, True)
+        # # print("saving premiere project")
+        # # project.saveAs(f"{self.article_path}/result.prproj")
         print("imported files")
         # add to sequence
         print("plz edit movie")

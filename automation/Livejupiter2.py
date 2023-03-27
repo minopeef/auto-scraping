@@ -15,6 +15,7 @@ class Livejupiter2(Base):
         self.result = []
         df = pandas.read_csv("drive_info.csv")
         self.driver_id = df[df["name"] == self.name]["id"].iloc[0]
+        self.all_comment = ""
         # self.driver_id = "1GJxSjcyk6qB27kpXjBuysM27AjiT9HLk"
 
     def run(self):

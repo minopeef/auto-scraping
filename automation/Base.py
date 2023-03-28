@@ -4,10 +4,14 @@ import os
 import re
 import shutil
 import time
+from io import BytesIO
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pymiere
 import requests
+from matplotlib import font_manager
+from matplotlib.figure import Figure
 from mutagen.mp3 import MP3
 from PIL import Image
 from pydrive.auth import GoogleAuth
@@ -30,10 +34,15 @@ else:
 gauth.SaveCredentialsFile("credentials")
 drive = GoogleDrive(gauth)
 
+# add font to matplotlib
+font_manager.fontManager.addfont("gen.ttf")
+
 
 class Base:
     all_comment = ""
     interval = 10
+    line_width = 20
+    line_height = 10
 
     def __init__(self) -> None:
         self.name = None
@@ -72,6 +81,22 @@ class Base:
             isanimated = True
 
         return isanimated
+
+    def text_to_rgba(self, _text, path, *, dpi, **kwargs):
+        # To convert a text string to an image, we can:
+        # - draw it on an empty and transparent figure;
+        # - save the figure to a temporary buffer using ``bbox_inches="tight",
+        #   pad_inches=0`` which will pick the correct area to save;
+        # - load the buffer using ``plt.imread``.
+        #
+        # (If desired, one can also directly save the image to the filesystem.)
+        fig = Figure(facecolor="none")
+        fig.text(0, 0, _text, **kwargs)
+        with BytesIO() as buf:
+            fig.savefig(buf, dpi=dpi, format="png", bbox_inches="tight", pad_inches=0)
+            buf.seek(0)
+            rgba = plt.imread(buf)
+        plt.imsave(path, rgba)
 
     def gif_to_jpg(self, local_path):
         try:
@@ -145,6 +170,9 @@ class Base:
         return
 
     def save_upload_txt(self, local_path: str, driver_id: str, txt: str):
+        # cut text
+        if len(txt) > 140:
+            txt = txt[:140]
         with open(local_path, mode="w", encoding="utf-8") as f:
             f.write(txt)
         self.upload_file(driver_id, local_path)
@@ -179,6 +207,7 @@ class Base:
         Path(f"{self.article_path}/音声ファイル").mkdir(parents=True, exist_ok=True)
         Path(f"{self.article_path}/記事").mkdir(parents=True, exist_ok=True)
         Path(f"{self.article_path}/画像").mkdir(parents=True, exist_ok=True)
+        Path(f"{self.article_path}/記事画像").mkdir(parents=True, exist_ok=True)
 
         # create driver path
         self.article_driver_id = self.create_driver_directory(
@@ -192,6 +221,9 @@ class Base:
         )
         self.image_driver_id = self.create_driver_directory(
             "画像", self.article_driver_id
+        )
+        self.article_image_driver_id = self.create_driver_directory(
+            "記事画像", self.article_driver_id
         )
 
         # save image
@@ -243,6 +275,38 @@ class Base:
             self.article_driver_id,
             self.all_comment,
         )
+        # all_comment to image
+        multi_line = iter(self.all_comment.splitlines())
+        new_comment = []
+        temp_line = ""
+        line_height = 0
+        for line in multi_line:
+            while True:
+                if len(line) > 20:
+                    temp_line += line[:20] + "\n"
+                    line = line[20:]
+                    line_height += 1
+                else:
+                    temp_line += line + "\n"
+                    line_height += 1
+                    break
+            if line_height >= self.line_height:
+                new_comment.append(temp_line)
+                line_height = 0
+                temp_line = ""
+        if not temp_line == "":
+            new_comment.append(temp_line)
+
+        for idx, comment in enumerate(new_comment):
+            self.text_to_rgba(
+                comment,
+                f"{self.article_path}/記事画像/記事画像{idx}.png",
+                color="yellow",
+                fontsize=20,
+                dpi=200,
+                fontfamily="Gen Jyuu Gothic Monospace",
+            )
+
         with open(
             f"{self.article_path}/all_info.json", mode="w", encoding="utf-8"
         ) as f:
@@ -281,6 +345,10 @@ class Base:
             os.path.abspath(f"{self.article_path}/画像/{x}")
             for x in os.listdir(f"{self.article_path}/画像")
         ]
+        files_path += [
+            os.path.abspath(f"{self.article_path}/記事画像/{x}")
+            for x in os.listdir(f"{self.article_path}/記事画像")
+        ]
         print("importing files")
         audio_from_seconds = 0
         image_from_seconds = 0
@@ -310,28 +378,13 @@ class Base:
                 continue
 
         print("imported files")
-        # add to sequence
-        print("plz edit movie")
-
-        # check ended
-        # while True:
-        #     try:
-        #         if pymiere.objects.app.isDocumentOpen():
-        #             time.sleep(3)
-        #         else:
-        #             return
-        #     except:  # noqa
-        #         self.result_movie_path = os.path.abspath(
-        #             f"{self.article_path}/result.mp4"
-        #         )
-        #         if os.path.isfile(self.result_movie_path):
-        #             self.upload_file(self.article_driver_id, self.result_movie_path)
-        #         print("completed\n")
-        #         return
-
         project.save()
 
         try:
             pymiere.objects.app.quit()
         except Exception as e:
             print(e)
+
+
+# Base().text_to_rgba("記事画像", "1.png", color="yellow", fontsize=20, dpi=200, fontfamily="Gen Jyuu Gothic Monospace")
+# print()

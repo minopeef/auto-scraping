@@ -16,7 +16,6 @@ class I6496(Base):
         self.result = []
         df = pandas.read_csv("drive_info.csv")
         self.driver_id = df[df["name"] == self.name]["id"].iloc[0]
-        self.all_comment = ""
 
     def run(self):
         print(f"scraping {self.name}")

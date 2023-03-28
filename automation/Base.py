@@ -32,6 +32,9 @@ drive = GoogleDrive(gauth)
 
 
 class Base:
+    all_comment = ""
+    interval = 10
+
     def __init__(self) -> None:
         self.name = None
         self.path = None
@@ -43,8 +46,6 @@ class Base:
         self.img_link = None
         self.comment_body_list = None
         self.result_movie_path = None
-        self.all_comment = ""
-        self.interval = 10
 
     def check_interval(self, _time):
         cur_time = int(time.time())

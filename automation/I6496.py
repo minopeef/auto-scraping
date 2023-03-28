@@ -74,6 +74,7 @@ class I6496(Base):
             self.comment_body_list = [
                 x.text.strip()
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
+                if "http" not in x
             ]
             result["comment"] = self.comment_body_list
             self.result.append(result)

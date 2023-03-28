@@ -69,8 +69,9 @@ class Rock(Base):
                 for x in article_body.find_all("div", attrs={"class": "t_h"})
             ]
             self.comment_body_list = [
-                x.text.strip()
+                " ".join(re.findall(r"\w+", x))
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
+                if "http" not in x
             ]
             result["comment"] = self.comment_body_list
             self.result.append(result)

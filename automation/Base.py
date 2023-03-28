@@ -43,6 +43,7 @@ class Base:
     interval = 20  # 分
     line_width = 20  # 文字数
     line_height = 10  # 行数
+    comment_body_list = []
 
     def __init__(self) -> None:
         self.name = None
@@ -53,7 +54,6 @@ class Base:
         self.date_time = None
         self.article_head = None
         self.img_link = None
-        self.comment_body_list = None
         self.result_movie_path = None
 
     def check_interval(self, _time):

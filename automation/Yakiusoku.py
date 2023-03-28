@@ -72,9 +72,9 @@ class Yakiusoku(Base):
             #     for x in article_body.find_all("div", attrs={"class": "t_h"})
             # ]
             self.comment_body_list = [
-                " ".join(re.findall(r"\w+", x))
+                " ".join(re.findall(r"\w+", x.text[:140]))
                 for x in article_body.find_all("div", attrs={"class": "t_b"})
-                if "http" not in x
+                if "http" not in x.text[:140]
             ]
             result["comment"] = self.comment_body_list
             self.result.append(result)

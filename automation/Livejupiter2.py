@@ -69,10 +69,10 @@ class Livejupiter2(Base):
             # get comment head and body
             for item in article_body.find_all("dd"):
                 try:
-                    if "http" in item.find("b").text.strip():
+                    if "http" in item.find("b").text.strip()[:140]:
                         continue
                     self.comment_body_list.append(
-                        " ".join(re.findall(r"\w+", item.find("b").text.strip()))
+                        " ".join(re.findall(r"\w+", item.find("b").text.strip()[:140]))
                     )
                 except:  # noqa
                     continue

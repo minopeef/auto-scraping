@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import re
@@ -43,6 +44,15 @@ class Base:
         self.comment_body_list = None
         self.result_movie_path = None
         self.all_comment = ""
+        self.interval = 10
+
+    def check_interval(self, _time):
+        cur_time = int(time.time())
+
+        dt = datetime.datetime.strptime(_time[:19], "%Y-%m-%dT%H:%M:%S")
+        if cur_time - dt.timestamp() > 60 * self.interval:
+            return False
+        return True
 
     def check_gif(self, local_path):
         gif = Image.open(local_path)

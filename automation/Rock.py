@@ -23,7 +23,7 @@ class Rock(Base):
         resp = requests.get(self.url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         recent_tag = soup.find("ul", attrs={"class": "recent-article-image"})
-        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")][:1]
+        recent_link_list = [x.find("a")["href"] for x in recent_tag.find_all("li")][:10]
         for _link in recent_link_list:
             result = {
                 "title": "",
@@ -41,6 +41,11 @@ class Rock(Base):
 
             # get deployed time
             self.date_time = self.article_head.find("abbr")["title"]
+
+            # check if it is new article
+            if not self.check_interval(self.date_time):
+                continue
+
             self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
 
             # get title

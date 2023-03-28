@@ -26,7 +26,7 @@ class I6496(Base):
         recent_link_list = [
             x.find("a")["href"]
             for x in recent_tag.find_all(attrs={"class": "sidebody"})
-        ][:1]
+        ][:10]
         for _link in recent_link_list:
             result = {
                 "title": "",
@@ -44,6 +44,11 @@ class I6496(Base):
 
             # get deployed time
             self.date_time = self.article_head.find("abbr")["title"]
+
+            # check if it is new article
+            if not self.check_interval(self.date_time):
+                continue
+
             self.date_time = "".join(re.findall(r"\d+", self.date_time))[:12]
 
             # get title

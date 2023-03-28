@@ -300,57 +300,30 @@ class Base:
                     image_from_seconds += 3
             except:  # noqa
                 continue
-        # # import text
-        # mogrt_path = os.path.abspath(f"default.mogrt")
-        # # track = project.activeSequence.importMGT(os.path.abspath(f"default.mogrt"), 0, 0, 0)
-        # # mocomp = track.getMGTComponent()
-        # # params = mocomp.displayName
-        # # print(params)
-        # # params
-        # mgt_clip = sequence.importMGT(
-        #     path=mogrt_path,
-        #     time=time_from_seconds(0),  # start time
-        #     videoTrackIndex=0, audioTrackIndex=0  # on which track to place it
-        # )
-        # # get component hosting modifiable template properties
-        # mgt_component = mgt_clip.getMGTComponent()
-        # # handle two types, see Note 2 above
-        # if mgt_component is None:
-        #     # Premiere Pro type, directly use components
-        #     components = mgt_clip.components
-        # else:
-        #     # After Effects type, everything is hosted by the MGT component
-        #     components = [mgt_component]
 
-        # # for component in components:
-        # #     # iter through MGT properties, display and change values
-        # #     for prop in component.properties:
-        #         # print(prop.displayName)
-        #         # value = prop.getValue()  # for color properties use getColorValue() and setColorValue()
-        #         # print(value)
-        # components[0].properties[0].setValue(self.all_comment, True)
-        # # print("saving premiere project")
-        # # project.saveAs(f"{self.article_path}/result.prproj")
         print("imported files")
         # add to sequence
         print("plz edit movie")
 
         # check ended
-        while True:
-            try:
-                if pymiere.objects.app.isDocumentOpen():
-                    time.sleep(3)
-                else:
-                    return
-            except:  # noqa
-                self.result_movie_path = os.path.abspath(
-                    f"{self.article_path}/result.mp4"
-                )
-                if os.path.isfile(self.result_movie_path):
-                    self.upload_file(self.article_driver_id, self.result_movie_path)
-                print("completed\n")
-                return
-        # try:
-        #     pymiere.objects.app.quit()
-        # except Exception as e:
-        #     print(e)
+        # while True:
+        #     try:
+        #         if pymiere.objects.app.isDocumentOpen():
+        #             time.sleep(3)
+        #         else:
+        #             return
+        #     except:  # noqa
+        #         self.result_movie_path = os.path.abspath(
+        #             f"{self.article_path}/result.mp4"
+        #         )
+        #         if os.path.isfile(self.result_movie_path):
+        #             self.upload_file(self.article_driver_id, self.result_movie_path)
+        #         print("completed\n")
+        #         return
+
+        project.save()
+
+        try:
+            pymiere.objects.app.quit()
+        except Exception as e:
+            print(e)

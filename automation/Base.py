@@ -48,9 +48,16 @@ class Base:
         self.result_movie_path = None
 
     def check_interval(self, _time):
+
         cur_time = int(time.time())
 
-        dt = datetime.datetime.strptime(_time[:19], "%Y-%m-%dT%H:%M:%S")
+        try:
+            dt = datetime.datetime.fromisoformat(_time)
+        except:  # noqa
+            temp = re.findall(r"\d+", _time)[:5]
+            temp = f"{temp[0]}-{temp[1]}-{temp[2]}T{temp[3]}:{temp[4]}:00+09:00"
+            dt = datetime.datetime.fromisoformat(temp)
+
         if cur_time - dt.timestamp() > 60 * self.interval:
             return False
         return True

@@ -121,6 +121,15 @@ class Base:
 
         return
 
+    def convert_img(self, local_path):
+        try:
+            im = Image.open(local_path)
+        except OSError:
+            print("can't load", local_path)
+        new_im = Image.new("RGB", im.size)
+        new_im.paste(im)
+        new_im.save(local_path)
+
     def download_upload_img(self, path: str, driver_id: str, link: str, name: str):
         try:
             # download image
@@ -136,6 +145,8 @@ class Base:
         gif_flag = self.check_gif(f"{path}/{name}")
         if gif_flag:
             self.gif_to_jpg(f"{path}/{name}")
+        else:
+            self.convert_img(f"{path}/{name}")
 
         # upload to google drive
         self.upload_file(driver_id, f"{path}/{name}")

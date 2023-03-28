@@ -40,9 +40,9 @@ font_manager.fontManager.addfont("gen.ttf")
 
 class Base:
     all_comment = ""
-    interval = 10
-    line_width = 20
-    line_height = 10
+    interval = 20  # 分
+    line_width = 20  # 文字数
+    line_height = 10  # 行数
 
     def __init__(self) -> None:
         self.name = None
@@ -316,6 +316,9 @@ class Base:
                 fontsize=20,
                 dpi=200,
                 fontfamily="Gen Jyuu Gothic Monospace",
+            )
+            self.upload_file(
+                self.article_image_driver_id, f"{self.article_path}/記事画像/記事画像{idx}.png"
             )
 
         with open(

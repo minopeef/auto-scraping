@@ -44,6 +44,7 @@ class Base:
     line_width = 20  # 文字数
     line_height = 10  # 行数
     comment_body_list = []
+    font_size = 20
 
     def __init__(self) -> None:
         self.name = None
@@ -309,7 +310,7 @@ class Base:
                 comment,
                 f"{self.article_path}/記事画像/記事画像{idx}.png",
                 color="yellow",
-                fontsize=20,
+                fontsize=self.font_size,
                 dpi=200,
                 fontfamily="Gen Jyuu Gothic Monospace",
             )

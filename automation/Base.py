@@ -293,23 +293,15 @@ class Base:
         # all_comment to image
         multi_line = iter(self.all_comment.splitlines())
         new_comment = []
-        temp_line = ""
-        line_height = 0
         for line in multi_line:
+            temp_line = ""
             while True:
-                if len(line) > 20:
-                    temp_line += line[:20] + "\n"
-                    line = line[20:]
-                    line_height += 1
+                if len(line) > self.line_width:
+                    temp_line += line[: self.line_width] + "\n"
+                    line = line[self.line_width :]
                 else:
-                    temp_line += line + "\n"
-                    line_height += 1
+                    temp_line += line
                     break
-            if line_height >= self.line_height:
-                new_comment.append(temp_line)
-                line_height = 0
-                temp_line = ""
-        if not temp_line == "":
             new_comment.append(temp_line)
 
         for idx, comment in enumerate(new_comment):

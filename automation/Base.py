@@ -389,7 +389,7 @@ class Base:
             for x in os.listdir(f"{self.article_path}/記事画像")
         ]
         image_from_seconds = 0
-        for file in files_path:
+        for idx, file in enumerate(files_path):
             try:
                 project.importFiles(
                     [file],
@@ -400,11 +400,12 @@ class Base:
                 items = project.rootItem.findItemsMatchingMediaPath(
                     file, ignoreSubclips=False
                 )
-                items[0].setScaleToFrameSize()
-                project.activeSequence.videoTracks[1].insertClip(
+                # items[0].setScaleToFrameSize()
+                project.activeSequence.videoTracks[idx + 1].insertClip(
                     items[0], time_from_seconds(image_from_seconds)
                 )
-                image_from_seconds += 0.5
+
+                # image_from_seconds += 0.5
             except:  # noqa
                 continue
         print("imported files")

@@ -91,9 +91,13 @@ class Base:
         #
         # (If desired, one can also directly save the image to the filesystem.)
         fig = Figure(facecolor="none")
+        # remove last blank line
+        _text = _text[: _text.rfind("\n")]
         fig.text(0, 0, _text, **kwargs)
         with BytesIO() as buf:
-            fig.savefig(buf, dpi=dpi, format="png", bbox_inches="tight", pad_inches=0)
+            fig.savefig(
+                buf, dpi=dpi, format="png", bbox_inches="tight", pad_inches=0.05
+            )
             buf.seek(0)
             rgba = plt.imread(buf)
         plt.imsave(path, rgba)
@@ -359,10 +363,6 @@ class Base:
             os.path.abspath(f"{self.article_path}/画像/{x}")
             for x in os.listdir(f"{self.article_path}/画像")
         ]
-        files_path += [
-            os.path.abspath(f"{self.article_path}/記事画像/{x}")
-            for x in os.listdir(f"{self.article_path}/記事画像")
-        ]
         print("importing files")
         audio_from_seconds = 0
         image_from_seconds = 0
@@ -387,10 +387,33 @@ class Base:
                     project.activeSequence.videoTracks[0].insertClip(
                         items[0], time_from_seconds(image_from_seconds)
                     )
-                    image_from_seconds += 3
+                    image_from_seconds += 6
             except:  # noqa
                 continue
 
+        files_path = [
+            os.path.abspath(f"{self.article_path}/記事画像/{x}")
+            for x in os.listdir(f"{self.article_path}/記事画像")
+        ]
+        image_from_seconds = 0
+        for file in files_path:
+            try:
+                project.importFiles(
+                    [file],
+                    True,
+                    project.rootItem,
+                    True,
+                )
+                items = project.rootItem.findItemsMatchingMediaPath(
+                    file, ignoreSubclips=False
+                )
+                items[0].setScaleToFrameSize()
+                project.activeSequence.videoTracks[1].insertClip(
+                    items[0], time_from_seconds(image_from_seconds)
+                )
+                image_from_seconds += 0.5
+            except:  # noqa
+                continue
         print("imported files")
         project.save()
 

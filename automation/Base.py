@@ -381,7 +381,7 @@ class Base:
                     project.activeSequence.videoTracks[0].insertClip(
                         items[0], time_from_seconds(audio_from_seconds)
                     )
-                    audio_from_seconds += MP3(file).info.length - 0.5
+                    audio_from_seconds += MP3(file).info.length
                 else:
                     items[0].setScaleToFrameSize()
                     project.activeSequence.videoTracks[0].insertClip(

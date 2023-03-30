@@ -44,7 +44,6 @@ class Base:
     line_width = 20  # 文字数
     line_height = 10  # 行数
     comment_body_list = []
-    font_size = 20
 
     def __init__(self) -> None:
         self.name = None
@@ -294,15 +293,23 @@ class Base:
         # all_comment to image
         multi_line = iter(self.all_comment.splitlines())
         new_comment = []
+        temp_line = ""
+        line_height = 0
         for line in multi_line:
-            temp_line = ""
             while True:
-                if len(line) > self.line_width:
-                    temp_line += line[: self.line_width] + "\n"
-                    line = line[self.line_width :]
+                if len(line) > 20:
+                    temp_line += line[:20] + "\n"
+                    line = line[20:]
+                    line_height += 1
                 else:
-                    temp_line += line
+                    temp_line += line + "\n"
+                    line_height += 1
                     break
+            if line_height >= self.line_height:
+                new_comment.append(temp_line)
+                line_height = 0
+                temp_line = ""
+        if not temp_line == "":
             new_comment.append(temp_line)
 
         for idx, comment in enumerate(new_comment):
@@ -310,7 +317,7 @@ class Base:
                 comment,
                 f"{self.article_path}/記事画像/記事画像{idx}.png",
                 color="yellow",
-                fontsize=self.font_size,
+                fontsize=20,
                 dpi=200,
                 fontfamily="Gen Jyuu Gothic Monospace",
             )
@@ -389,7 +396,7 @@ class Base:
             for x in os.listdir(f"{self.article_path}/記事画像")
         ]
         image_from_seconds = 0
-        for idx, file in enumerate(files_path):
+        for file in files_path:
             try:
                 project.importFiles(
                     [file],
@@ -400,12 +407,11 @@ class Base:
                 items = project.rootItem.findItemsMatchingMediaPath(
                     file, ignoreSubclips=False
                 )
-                # items[0].setScaleToFrameSize()
-                project.activeSequence.videoTracks[idx + 1].insertClip(
+                items[0].setScaleToFrameSize()
+                project.activeSequence.videoTracks[1].insertClip(
                     items[0], time_from_seconds(image_from_seconds)
                 )
-
-                # image_from_seconds += 0.5
+                image_from_seconds += 0.5
             except:  # noqa
                 continue
         print("imported files")

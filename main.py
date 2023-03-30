@@ -1,3 +1,4 @@
+#!./.venv/bin/python
 from automation.I6496 import I6496
 from automation.Livejupiter2 import Livejupiter2
 from automation.Nanjstu import Nanjstu

@@ -1,0 +1,12 @@
+div.container {
+    max-width: 1024px;
+    margin: auto;
+    padding-top: 40px;
+    background-color: antiquewhite;
+}
+
+#result {
+    width: 100%;
+    padding: 0%;
+    /* margin-top: 10px; */
+}

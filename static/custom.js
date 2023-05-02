@@ -37,7 +37,7 @@ function run(flag) {
 
 function stop(flag) {
     console.log(flag)
-    $("#toast-body").text("request stop")
+    $("#toast-body").text("停止中")
     $(".toast").toast('show')
     $.post(
         "/stop",

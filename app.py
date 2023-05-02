@@ -28,45 +28,32 @@ def index():
 
 @app.route("/run", methods=["POST"])
 def scrap():
-    flag = request.form["flag"]
     url = request.form["url"]
     interval = request.form["interval"]
-    print(flag, url, interval)
+    mode = request.form["flag"]
+    print(mode, url, interval)
     if Store.flag == False:
         if (
             ThreadFlag.all_thread
             and ThreadFlag.all_thread.is_alive()
             and Store.status == "stopped"
         ):
-            # ThreadFlag.all_thread.join()
-            # threading.Thread(target=ThreadFlag.all_thread.join).start()
             return jsonify({"status": "rerun 5min"})
-        ThreadFlag.all_thread = threading.Thread(target=main.all_run, args=(interval,))
-        ThreadFlag.all_thread.start()
+        if mode == "manual":
+            ThreadFlag.all_thread = threading.Thread(
+                target=main.manual_run, args=(url,)
+            )
+        else:
+            ThreadFlag.all_thread = threading.Thread(
+                target=main.all_run, args=(interval,)
+            )
+            ThreadFlag.all_thread.start()
         Store.flag = True
         Store.status = "started"
     else:
         Store.status = "running"
 
     return jsonify({"status": Store.status})
-
-    if flag == "auto":
-        if Store.Auto.flag == False:
-            # all_thread = threading.Thread(target=main.all_run, args=(interval))
-            # all_thread.start()
-            Store.Auto.flag = True
-            Store.Auto.status = "started"
-        else:
-            Store.Auto.status = "running"
-        # return redirect(url_for("index"))
-        return jsonify({"status": Store.Auto.status})
-    if flag == "manual":
-        if Store.Manual.flag == False:
-            Store.Manual.flag = True
-            Store.Auto.status = "started"
-        else:
-            Store.Manual.status = "running"
-        return jsonify({"status": Store.Manual.status})
 
 
 @app.route("/stop", methods=["POST"])
@@ -75,15 +62,6 @@ def stop():
     Store.flag = False
     Store.status = "stopped"
     return jsonify({"status": Store.status})
-    if flag == "auto":
-        Store.Auto.flag = False
-        Store.Auto.status = "stopped"
-        return jsonify({"status": Store.Auto.status})
-    if flag == "manual":
-        Store.Manual.flag = False
-        Store.Manual.status = "stopped"
-        return jsonify({"status": Store.Manual.status})
-    # return redirect(url_for("index"))
 
 
 @app.errorhandler(404)

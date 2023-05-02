@@ -19,17 +19,6 @@ def all_run(duration: str):
                 getattr(globals()[item](), "run")()
             else:
                 return
-        # if Store.flag:
-        #     Rock().run()
-        # if Store.flag:
-        #     Yakiusoku().run()
-        # if Store.flag:
-        #     Livejupiter2().run()
-        # if Store.flag:
-        #     Nanjstu().run()
-        # if Store.flag:
-        #     I6496().run()
-        #     print(duration)
         end_time = time.time()
         remaining_time = int(duration) * 60 - end_time + start_time
         if remaining_time > 1:

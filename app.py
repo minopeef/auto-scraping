@@ -31,13 +31,13 @@ def scrap():
     interval = request.form["interval"]
     print(flag, url, interval)
     if Store.flag == False:
-        Store.flag = True
-        Store.status = "started"
         if Store.status == "stopped":
             ThreadFlag.all_thread.join()
             # threading.Thread(target=duplicate_thread, args=(ThreadFlag.all_thread, interval)).start()
         ThreadFlag.all_thread = threading.Thread(target=main.all_run, args=(interval,))
         ThreadFlag.all_thread.start()
+        Store.flag = True
+        Store.status = "started"
     else:
         Store.status = "running"
     

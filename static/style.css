@@ -71,3 +71,10 @@ body#website.index:before, body#website.index:after {
     gap: 10%;
     align-items: center;
 } */
+
+.toast {
+    position: absolute;
+    display: fixed;
+    top: 10px;
+    right: 10px;
+}

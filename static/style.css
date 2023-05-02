@@ -1,12 +1,73 @@
-div.container {
-    max-width: 1024px;
-    margin: auto;
-    padding-top: 40px;
-    background-color: antiquewhite;
+
+body {
+    background: #24252d;
+    -webkit-text-size-adjust: none;
 }
 
-#result {
-    width: 100%;
-    padding: 0%;
-    /* margin-top: 10px; */
+body, input, select, textarea {
+    color: rgba(255,255,255,.75);
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: normal;
+    line-height: 1.75;
+    font-size: 1em;
 }
+
+body#website.index {
+    text-align: center;
+    cursor: default;
+}
+
+body.is-nonTouch {
+    -moz-touch-action: pan-y;
+    -webkit-touch-action: pan-y;
+    -ms-touch-action: pan-y;
+    touch-action: pan-y;
+}
+
+body#website.index:before {
+    background-image: url(https://carrd.co/assets/images/etc/overlay.png),linear-gradient(45deg, #6E436C 25%, #2A4584 75%);
+    background-size: 256px,cover;
+    background-position: center,center;
+    background-repeat: repeat,no-repeat;
+}
+
+body#website.index:after {
+    background-image: url(https://carrd.co/assets/images/etc/bg.svg);
+    background-size: cover;
+    background-position: top;
+    background-repeat: no-repeat;
+    transition: filter .5s ease,opacity 1s ease;
+}
+
+body#website.index:before, body#website.index:after {
+    content: "";
+    display: block;
+    position: fixed;
+    bottom: -5vh;
+    left: -5vw;
+    width: 110vw;
+    height: 110vh;
+    pointer-events: none;
+    transform: scale(1);
+    z-index: -1;
+}
+
+* {
+    color: white;
+}
+
+/* .row>* {
+    padding-left: 0;
+    padding-: 0;
+} */
+/* h1 {
+    font-size: 3.5em;
+    color: white;
+}
+
+.tool {
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+    align-items: center;
+} */

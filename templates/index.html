@@ -1,29 +1,52 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="static/style.css">
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <div class="container">
-            <form method="post" action="/run" autocomplete="on">
-                <input name="name" id="name"/>
-                <input type="submit" value="run"/>
-            </form>
-            <br>
-            <div id="result">{{property_info}}</div>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Premiere Pro 自動化ツール</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body id="website" class="index is-nonTouch p-5">
+    <div class="row mt-5 container-fluid">
+        <h1>Premiere Pro 自動化ツール</h1>
+        <div class="col-md-4"></div>
+        <div class="tool col-md-4 center row mt-5">
+            <ul class="nav nav-tabs">
+                <li class="nav-item col-md-6">
+                    <a href="#home" class="nav-link active" data-bs-toggle="tab">自動</a>
+                </li>
+                <li class="nav-item col-md-6">
+                    <a href="#profile" class="nav-link" data-bs-toggle="tab">手動</a>
+                </li>
+            </ul>
+            <div class="tab-content mt-5">
+                <div class="tab-pane fade show active fixed" id="home">
+                    <div class="input-group">
+                        <input type="number" value="10" class="form-control mt-3" placeholder="Time interval (min)" aria-label="time interval" id="auto_interval">
+                    </div>
+                    <a href="#" class="btn btn-primary col-12 mt-3" id="auto_run">Run</a>
+                    <a href="" class="btn btn-danger col-12 mt-3" id="auto_stop">Stop</a>
+                </div>
+                <div class="tab-pane fade" id="profile">
+                    <div class="input-group">
+                        <input type="text" class="form-control mt-3" placeholder="Input URL" aria-label="Input URL" id="manual_url">
+                    </div>
+                    <a href="#" class="manul-run btn btn-primary col-12 mt-3" id="manual_run">Run</a>
+                    <a href="" class="btn btn-danger col-12 mt-3" id="manual_stop">Stop</a>
+                </div>
+            </div>
         </div>
-        <script src="" async defer></script>
-    </body>
+        <div class="col-md-4"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+    <script src="static/custom.js"></script>
+
+</body>
+
 </html>

@@ -19,7 +19,7 @@ function run(flag) {
             "url": url
         },
         (res) => {
-            console.log(res)
+            console.log(res.status)
         }
     )
 }
@@ -29,30 +29,34 @@ function stop(flag) {
     $.post(
         "/stop",
         {
+            "flag": flag,
             "data": "stop"
         },
         (res) => {
-            // console.log(res)
+            console.log(res.status)
         }
     )
 }
 
 
-
 $(document).ready(() => {
-    $("#auto_run").click(() => {
+    $("#auto_run").click((e) => {
+        e.preventDefault()
         run("auto")
     })
 
-    $("#manual_run").click(() => {
+    $("#manual_run").click((e) => {
+        e.preventDefault()
         run("manual")
     })
 
-    $("#auto_stop").click(() => {
+    $("#auto_stop").click((e) => {
+        e.preventDefault()
         stop("auto")
     })
 
-    $("#manual_stop").click(() => {
+    $("#manual_stop").click((e) => {
+        e.preventDefault()
         stop("manual")
     })
 })

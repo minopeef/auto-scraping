@@ -47,7 +47,7 @@ def scrap():
             ThreadFlag.all_thread = threading.Thread(
                 target=main.all_run, args=(interval,)
             )
-            ThreadFlag.all_thread.start()
+        ThreadFlag.all_thread.start()
         Store.flag = True
         Store.status = "started"
     else:
@@ -69,4 +69,4 @@ def not_found(error):
     return redirect(url_for("index"))
 
 
-app.run(host="0.0.0.0", debug=True, port="80")
+app.run(host="0.0.0.0", debug=True, port="8080")

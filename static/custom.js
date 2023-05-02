@@ -7,11 +7,11 @@ function run(flag) {
         var timeInterval = $("#auto_interval").val()
     }
     if(flag == "manual") {
-        var url = $("#manual_url").val()
+        var url = $("#dropdown_btn").attr("data-val")
     }
 
     console.log(flag, url, timeInterval)
-    $("#toast-body").text("request started")
+    $("#toast-body").text("実行中...")
     $('.toast').toast('show');
 
     $.post(
@@ -23,7 +23,13 @@ function run(flag) {
         },
         (res) => {
             console.log(res.status)
-            $("#toast-body").text(res.status)
+            if(res.status == "rerun 5min") {
+                $("#toast-body").text("現在終了していないプロセスがありますので、5分後にもう一度お試しください。")
+            }else if(res.status == "started") {
+                $("#toast-body").text("始めました")
+            }else if(res.status == "running") {
+                $("#toast-body").text("現在実行中です。")
+            }
             $(".toast").toast('show')
         }
     )
@@ -41,7 +47,9 @@ function stop(flag) {
         },
         (res) => {
             console.log(res.status)
-            $("#toast-body").text(res.status)
+            if(res.status == "stopped") {
+                $("#toast-body").text("停止")
+            }
             $(".toast").toast('show')
         }
     )
@@ -68,4 +76,13 @@ $(document).ready(() => {
         e.preventDefault()
         stop("manual")
     })
+    let dropDownItems = document.querySelectorAll(".dropdown-item")
+    for(let i = 0; i < dropDownItems.length; i ++) {
+        dropDownItems[i].addEventListener("click", (e) => {
+            itemText = e.target.innerText
+            dataVal = $(e.target).attr("data-val")
+            $("#dropdown_btn").text(itemText);
+            $("#dropdown_btn").attr("data-val", dataVal);
+        })
+    }
 })

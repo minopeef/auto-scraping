@@ -26,4 +26,4 @@ def all_run(duration: str):
 
 
 def manual_run(url: str):
-    print(url)
+    getattr(globals()[url](), "run")()

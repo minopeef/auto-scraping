@@ -1,5 +1,4 @@
 #!./.venv/bin/python
-import threading
 import time
 
 
@@ -8,18 +7,34 @@ from automation.Livejupiter2 import Livejupiter2
 from automation.Nanjstu import Nanjstu
 from automation.Rock import Rock
 from automation.Yakiusoku import Yakiusoku
-from app import Store
+
+from store import Store
 
 
-def all_run(duration):
+classes = ["Rock", "Yakiusoku", "Livejupiter2", "Nanjstu", "I6496"]
+def all_run(duration: str):
     while True:
         start_time = time.time()
-        if Store.flag:
-            # Rock().run()
-            # Yakiusoku().run()
-            # Livejupiter2().run()
-            # Nanjstu().run()
-            # I6496().run()
-            print(duration)
+        for item in classes:
+            if Store.flag:
+                getattr(globals()[item](), "run")()
+            else:
+                break
+        # if Store.flag:
+        #     Rock().run()
+        # if Store.flag:
+        #     Yakiusoku().run()
+        # if Store.flag:
+        #     Livejupiter2().run()
+        # if Store.flag:
+        #     Nanjstu().run()
+        # if Store.flag:
+        #     I6496().run()
+        #     print(duration)
         end_time = time.time()
-        time.sleep(duration - end_time + start_time)
+        remaining_time = int(duration) * 60 - end_time + start_time
+        if remaining_time > 1:
+            time.sleep(remaining_time)
+
+def manual_run(url: str):
+    print(url)

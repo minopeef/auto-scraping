@@ -3,26 +3,18 @@ import threading
 from flask import Flask, redirect, render_template, request, url_for, jsonify
 
 import main
+from store import Store
 
 app = Flask(__name__)
 
-class Store:
 
-    mode = "Auto"
-    flag = False
-    status = "None"
+class ThreadFlag:
+    all_thread = None
 
-    class Auto:
-        flag = False
-        status = "None"
-    
-    class Manual:
-        flag = False
-        status = "None"
-
-    def __init__(self) -> None:
-        pass
-
+# def duplicate_thread(_thread, interval):
+#     _thread.join()
+#     ThreadFlag.all_thread = threading.Thread(target=main.all_run, args = (interval)).start()
+#     ThreadFlag.all_thread.start()
 
 @app.route("/")
 def index():
@@ -39,10 +31,13 @@ def scrap():
     interval = request.form["interval"]
     print(flag, url, interval)
     if Store.flag == False:
-        # all_thread = threading.Thread(target=main.all_run, args=(interval))
-        # all_thread.start()
         Store.flag = True
         Store.status = "started"
+        if Store.status == "stopped":
+            ThreadFlag.all_thread.join()
+            # threading.Thread(target=duplicate_thread, args=(ThreadFlag.all_thread, interval)).start()
+        ThreadFlag.all_thread = threading.Thread(target=main.all_run, args=(interval,))
+        ThreadFlag.all_thread.start()
     else:
         Store.status = "running"
     
